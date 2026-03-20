@@ -1,0 +1,95 @@
+\section{Introdución}
+
+NumPy (\textit{Numerical Python}) es una libreria de \textit{Python} que se \textit{especializa} al manejo de \textit{arreglos multidimensionales (arrays)} y en la realización de cálculos numéricos de alto rendimiento.
+
+Para el analista, entender NumPy no es solo aprender una librería, sino adoptar una nueva forma de pensar la información ``el pensamiento matricial''.
+
+\subsection{Arreglos multidimensionales: Más allá de las listas}
+
+¿A qué nos referimos exactamente con ``multidimensional''? En términos computacionales, un arreglo multidimensional es una estructura de datos que organiza la información en múltiples ejes o direcciones.
+
+Aunque matemáticamente podemos trabajar con n dimensiones, para facilitar la intuición técnica, solemos categorizarlas en las tres arquitecturas más comunes:
+\begin{itemize}
+    \item Unidimensional: Conocido como \textit{Vector}.
+    \item Bidimensional: Conocido como \textit{Matriz}.
+    \item Tridimensional: Conocido como \textit{Tensor}
+\end{itemize}
+
+
+\subsubsection{Una dimensión (Vector)}
+
+\textit{Vector} no es el nombre de tu amigo (o tal vez sí), pero para lo que nos ocupa, es simplemente una lista de elementos dispuestos en una sola dirección. Matemáticamente, un vector se ve así:
+\[
+V = \left[x_0,x_1,x_2,\dots,x_{n-1}\right]
+\]
+Ahora bien, a usted lector, probablemente no le interese en lo más mínimo cómo se ve esto en un libro de álgebra lineal; si así fuera, seguramente estaría leyendo álgebra lineal en lugar de este apunte. Para simplificarle la vida, imagine a un vector como una \textit{fila de la escuela}: esa donde el más bajo iba adelante y el más alto atrás. O una fila de asientos en el cine.
+
+Un vector puede representarse como una fila o como una columna de datos. Suponga que tiene una lista de nombres donde cada uno representa a una persona; en este caso, tenemos un \textit{vector de nombres}.
+
+Lo fundamental aquí es que un vector es una estructura unidimensional. No importa si los datos están acostados o parados: solo necesitamos un único \textit{índice} \((i)\) para saber exactamente en qué posición se encuentra un objeto. Si usted sabe que ``Juan'' es el tercero de la fila, no necesita más coordenadas para encontrarlo. En \textit{Python}, ese ``tercer lugar'' es lo único que nos importa para extraer el dato.
+
+
+\subsubsection{Dos dimensiones (Matriz)}
+
+Una \textit{matriz} es, para fines prácticos, una tabla de filas y columnas. Si usted ha sobrevivido a una hoja de \textit{Excel} o ha intentado jugar un partido de ajedrez, ya conoce esta estructura. Aquí los datos dejan de ser una simple fila india para organizarse en dos direcciones: filas \((i)\) y columnas \((j)\).
+
+Matemáticamente, una matriz se ve de la siguiente manera:
+\[
+A = \begin{bmatrix}
+a_{11} & a_{12} & \cdots & a_{1n} \\
+a_{21} & a_{22} & \cdots & a_{2n} \\
+\cdots  & \cdots  & \ddots & \vdots\\
+a_{m1} & a_{m2} & \cdots & a_{mn}
+\end{bmatrix}
+\]
+Nuevamente, no se asuste con los subíndices; solo están ahí para indicar que ahora necesitamos dos coordenadas para encontrar un dato. Si estuviéramos en un tablero de ajedrez y quisiéramos ubicar a la reina blanca, diríamos que está en la posición \(1,d\). En el mundo de los datos, la lógica es idéntica: primero miramos la fila y luego la columna.
+
+Sin embargo, hay una trampa en la que el programador novato suele caer: en \textit{Python} (y en casi toda la computación moderna), el primer elemento no vive en la posición 1, sino en la 0. Por lo tanto, para acceder al primer dato de nuestra "tabla", utilizaremos la sintaxis [0,0]. Es un pequeño precio a pagar por la eficiencia, aunque a su cerebro le tome un par de días acostumbrarse a no empezar a contar desde el uno.
+
+
+\subsubsection{Tres dimensiones (Tensor)}
+
+Para no complicarle la vida (ni complicármela yo), imagine un \textit{tensor} simplemente como un cubo o una pila de matrices. Si una matriz es una hoja de cálculo, un tensor es el libro entero de \textit{Excel} donde cada pestaña es una capa de datos. Para ubicar un elemento aquí, ahora necesitamos tres coordenadas: el \textit{piso} (o profundidad), la \textit{fila} y la \textit{columna}.
+
+Básicamente, el mundo físico que habitamos es de tres dimensiones, así que la intuición no debería fallarle.
+
+Tal como usted, no pienso perder el tiempo mostrando cómo se ve un tensor representado matemáticamente; sospecho que ambos tenemos mejores cosas que hacer. Pero si necesita una imagen mental, piense en un \textit{cubo de Rubik}: para identificar un cuadradito específico, usted debe saber en qué cara está (profundidad), en qué fila se encuentra y en qué columna se cruzan.
+
+En el código, esto se traduce en una terna de índices \([z,i,j]\). Donde \(z\) representa el nivel o la capa, e \(i\) y \(j\) son las coordenadas de la ``tabla'' que ya conocimos. Si logra visualizar esto, felicidades, acaba de entender la estructura base que utilizan las redes neuronales modernas para procesar imágenes a color (donde cada "piso" es un canal: Rojo, Verde y Azul).
+
+\subsection{Array}
+
+En programación, un \textit{array} (o "arreglo", si es que usted todavía se resiste al inglés técnico) es una colección de elementos, generalmente números, organizados de una forma específica.
+
+El origen de la palabra, aunque probablemente no le interese, proviene del francés antiguo \textit{arrai}, que significa "poner en orden" o "disponer". Si recupera por un breve instante lo que acaba de leer sobre arreglos multidimensionales, entenderá el punto: los elementos no se tiran al azar dentro de la memoria de la computadora.
+
+Cada dato tiene una posición fija, un \textit{índice} que nos permite encontrarlo rápidamente sin tener que revolver toda la caja. En \textit{NumPy}, esta "disposición" es sagrada. A diferencia de las listas de \textit{Python} convencionales, que son flexibles y un tanto desordenadas, un \textit{array} de \textit{NumPy} es una estructura rígida, eficiente y perfectamente indexada. Si usted sabe el índice, tiene el poder; si no lo sabe, está perdido en la memoria del sistema.
+
+\subsection{¿Por qué usar NumPy?}
+
+Si usted quiere simplificarse la vida y no dejar a su computadora agonizando mientras consume ciclos de CPU innecesarios, le recomiendo encarecidamente que preste atención.
+
+\textit{NumPy} no es solo una opción, es el estándar porque permite:
+
+\begin{itemize}
+    \item \textit{Eficiencia a escala:} Trabajar con grandes volúmenes de datos de forma masiva, optimizando el uso de la memoria RAM.
+    \item \textit{Velocidad pura:} Los \textit{arrays} son significativamente más rápidos que las listas de \textit{Python}, ya que almacenan los datos de forma contigua en la memoria (algo que a su procesador le encanta).
+    \item \textit{Vectorización:} Incluye operaciones que actúan sobre bloques enteros de datos, permitiéndonos jubilar esos bucles \textit{for} lentos y visualmente espantosos.
+    \item \textit{Caja de herramientas científica:} Contiene funciones matemáticas avanzadas, herramientas de álgebra lineal, estadística y generadores de números aleatorios.
+    \item \textit{Y mucho más:} No voy a nombrar cada beneficio; \textit{NumPy} no me paga por publicitarlo y, siendo honestos, si no fuera software libre, probablemente me cobrarían.
+\end{itemize}
+
+
+\section{Instalación}
+
+Voy a suponer que usted no ha llegado a este apunte sin haber instalado antes otras librerías. En el caso de que sea la primera vez que se enfrenta a la instalación de paquetes, intentaré ser claro (aunque, por favor, espero que ya lo haya hecho antes).
+
+Básicamente, para instalar \textit{NumPy}, al igual que \textit{Pandas} o \textit{Matplotlib}, el procedimiento es el mismo. Dado que asumo que si algún lector saltó directamente a las otras secciones ya dominaba este arte, esta será la única vez que explicaré cómo gestionar paquetes.
+
+Para realizar la instalación, diríjase a la terminal de su editor de código —o si escribe su código directamente en la terminal creyéndose \textit{Linus Torvalds} (en cuyo caso no deberia estar leyendo esto)— y ejecute el siguiente comando:
+
+\begin{verbatim}
+pip install numpy
+\end{verbatim}
+
+Puede, a su vez, reemplazar \textit{numpy} por \textit{pandas} o \textit{matplotlib} para descargar el resto del ecosistema. Supongo que sabe que es recomendable realizar estas instalaciones dentro de un \textit{entorno virtual}, pero no voy a explicar aquí qué es eso o cómo se configura. Quizás algún día dedique otro apunte a esos menesteres; por ahora, asumo que su entorno está listo para la acción.

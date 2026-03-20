@@ -1,0 +1,116 @@
+\section{Primeros pasos}
+
+Lamentablemente, es hora de dejar la tan hermosa sección de introducción. ¡La voy a extrañar, introducción! Pero como aquí vinimos a procesar datos y no a escribir poesía, es momento de ensuciarnos las manos.
+
+Antes de empezar como locos, hay que importar la librería, porque de lo contrario Python no tendrá idea de qué estamos hablando. Para esto, utilizamos las palabras mágicas: \textit{{\color{red}Import} numpy {\color{red}as} np}. Realmente, la parte de \textit{as np} no es estrictamente obligatoria, pero a la hora de escribir código es mucho más fácil y rápido escribir dos letras que cinco. Si usted decide no usar el alias, prepárese para desperdiciar segundos valiosos de su vida escribiendo \textit{numpy} frente a cada función.
+
+\subsection{Array simple}
+
+Un \textit{array} simple es, esencialmente, el \textit{vector} que vimos en la introducción: una secuencia lineal de datos. Sin embargo, para que \textit{NumPy} haga su magia, este arreglo debe respetar tres reglas de oro:
+
+\begin{itemize}
+    \item \textit{Homogeneidad:} Todos los elementos deben ser del mismo tipo. Si un \textit{array} es de números enteros, no puede pretender meter una palabra o un \textit{string} en el medio. Esta rigidez es, precisamente, lo que permite que sea mucho más rápido que las listas convencionales de \textit{Python}.
+    \item \textit{Índices:} Cada posición tiene un número de orden que, como ya mencionamos (y espero que no haya olvidado), empieza siempre en \(0\). Por lo tanto, si su \textit{array} tiene \(5\) elementos, el último vive en la posición \(4\).
+    \item \textit{Tamaño fijo:} Una vez que se crea el \textit{array} en la memoria, su tamaño queda definido. Aunque existen formas de "alterarlo", lo que realmente sucede tras bambalinas es que se crean copias modificadas y se borran las anteriores. No es tan flexible como una lista, pero es el precio de la eficiencia.
+\end{itemize}
+
+\subsubsection{Primer codigo}
+
+Lamentablemente, en \textit{NumPy} nuestro primer código no va a ser el clásico e inútil "Hola mundo"; aquí nuestro bautismo de fuego es el \textit{array simple}. Veamos cómo se traduce a código todo esto que venimos hablando: 
+
+\begin{pycode}{Creación y acceso en un array 1D}
+import numpy as np
+
+# Estaturas al azar; el autor no tenía mucha creatividad hoy.
+estaturas = np.array([1.75, 1.82, 1.60, 1.91]) 
+
+# Accediendo al primer elemento.
+primero = estaturas[0]  # Resultado: 1.75
+
+# Si quisiéramos saber cuántos elementos tiene el arreglo
+cantidad = estaturas.size # Resultado: 4
+\end{pycode}
+
+Ahora usted me dirá: ``para eso uso una lista de toda la vida''. Pero recuerde, \textit{NumPy} está hecho para cuando tengamos un millón de estaturas y queramos procesarlas en milisegundos. Por cuestiones \textit{didácticas}, no voy a realizar una toma de un millón de datos en este ejemplo; sería una crueldad innecesaria para su memoria RAM. Además, usted lector no se tomaría el trabajo de leer una muestra de ese tamaño, probablemente cerraría este apunte y se iría a ver una serie. Aquí lo que importa es que entienda la lógica, no que vea números infinitos.
+
+\subsubsection{La regla de la homogeneidad}
+
+Como se menciono anteriormente un array tiene todos los espacios contados, si intentaramos meter algo diferente, \textit{NumPy} va a tener que tomar una decisión para que el array siga siendo eficiente.
+
+Usted lector, curioso y quizás algo malvado por naturaleza, seguramente se cuestiona: ¿Qué pasa si intento romper la regla adrede? Si usted crea un \textit{array} mezclando números enteros o flotantes con palabras, \textit{NumPy} transformará a \textit{todos} los elementos al tipo de dato más flexible para que ninguno pierda información. En la jerarquía de datos, esto suele significar que todo terminará convertido en un \textit{string}.
+
+\begin{pycode}{Un Intruso en el array}
+    import numpy as np
+
+    edades = np.array([25, 30, 'Gino', 22]) # ¡Gino no es una edad, es mi nombre!
+
+    # Imprimimos edades
+    print(edades) # devuelve ['25' '30' 'Gino' '22']
+\end{pycode}
+Si usted está atento, se habrá dado cuenta de que \textit{NumPy} puso comillas en todos los valores. Básicamente, convirtió a sus pobres números en simples textos.
+
+\textit{NumPy} hace esto para salvarle las papas a su computadora. Recuerde que la librería asigna un espacio fijo en la memoria para cada elemento; si todos son enteros pequeños, reserva pocos \textit{bytes}, pero si aparece un \textit{string}, debe asignar espacio suficiente para el texto más largo. Para mantener la estructura "ordenada" que vimos antes, todos deben medir lo mismo.
+
+Este proceso de conversión automática se denomina \textit{coerción de tipos}, aunque probablemente usted y yo lo olvidemos apenas cerremos este apunte.
+
+
+\subsubsection{Operaciones vectorizadas}
+
+Esta es la razón por la cual usamos \textit{Numpy} y no otra calculadora o una lista de python.
+
+La \textit{vectorización} es la capacidad de aplicar una operación matemática a un \textit{array} completo, o entre dos \textit{arrays}, sin necesidad de escribir ciclos (\textit{loops}) manuales. Para entenderlo de forma sencilla: imagine que tiene que firmar y poner sus datos en 100 hojas. Puede hacerlo a mano con una lapicera (listas normales), o puede mandar a fabricar un sello con todos sus datos y simplemente presionar el mismo sobre cada hoja. \textit{NumPy} es el sello.
+
+\begin{ejemplo}
+    Imagine que usted es un chef y una pareja que va a casarse lo contrata para servir 1.000 platos de fideos; además, a cada uno debe ponerle una montaña de queso rallado.
+
+    Si usara \textit{Python} normal, usted debería ir con un rallador y un bloque de queso al primer plato: ralla, ralla, ralla. Luego se dirige al segundo: ralla, ralla, ralla... y así hasta el plato 1.000. El resultado: para cuando termine, los fideos estarán fríos, usted estará viejo y la boda probablemente habrá terminado hace décadas.
+
+    Pero como usted es un chef inteligente, le pide a la pareja que gaste 60.000 dólares en una máquina industrial con un sistema de ventilación en el techo, cargado con 50 kg de queso. Usted solo aprieta un botón y una ráfaga de aire precisamente calculada deposita el queso en los 1.000 platos al mismo tiempo.
+
+    Lamentablemente, aunque la idea sea buena, probablemente al chef no lo vuelvan a contratar o lo llamen loco. Pero nosotros no somos chefs, somos analistas de datos. \textit{NumPy} es esa máquina industrial: hace el trabajo sucio por nosotros en un solo paso, mientras que de forma manual nos tomaría una eternidad.
+\end{ejemplo}
+
+Como aún no hemos avanzado lo suficiente como para escribir un código complejo, veamos cómo se ve esta "magia" en un ejemplo sencillo. Una operación vectorizada se vería así:
+
+\begin{pycode}{Operación vectorizada}
+    import numpy as np
+
+    # Creamos la variable platos de fideos, donde el elemento de la lista es el peso del plato en gramos
+    platos = np.array([400, 412, 378, 415])
+
+    # Para cada plato rallamos 20 gramos de queso pero con la maquina automatizada sin maquina automatizada seria iterar en el bucle for
+    rallar_queso = platos + 20
+    print(f'Peso del plato sin queso = ', platos) # [400 412 378 415]
+
+    print(f'Peso del plato con queso = ', rallar_queso) # [420 432 398 435]
+\end{pycode}
+
+Veamos ahora que la magia no se limita a sumar un número solitario; también podemos operar entre vectores completos.
+
+\begin{ejemplo}
+    La vida de un chef es difícil: no solo tiene que rallar queso, sino que probablemente deba lidiar con cinco platos de distintos tamaños y cinco porciones de salsa. Para obtener el peso total de cada comida, usted no quiere tirar cualquier salsa sobre cualquier pasta. Usted necesita que la salsa [0] vaya al plato [0], la salsa [1] al plato [1], y así sucesivamente.
+\end{ejemplo}
+
+Si quisiéramos realizar una operación entre vectores en código, \textit{NumPy} se encarga de la logística de emparejamiento por nosotros:
+\begin{pycode}{Operación de vectores}
+import numpy as np
+
+# 1. Creamos el vector de "Pasta" (el peso en gramos de 5 platos diferentes)
+pasta = np.array([100, 120, 110, 130, 105])
+
+# 2. Creamos el vector de "Salsa" (el peso de la salsa lista para cada plato)
+salsa = np.array([50, 60, 55, 65, 52])
+
+# NumPy es inteligente: sabe que debe sumar la posición [0] con la [0], la [1] con la [1], y así hasta el final. No necesitas decirle cómo hacerlo.
+plato_completo = pasta + salsa
+
+# --- RESULTADOS ---
+print("Pesos de la Pasta:      ", pasta)
+print("Pesos de la Salsa:      ", salsa)
+print("-----------------------------------------")
+print("PESO TOTAL DE CADA PLATO:", plato_completo)
+\end{pycode}
+
+Sin embargo, ojalá la vida fuera todo colores y chispitas. Existe una ley inquebrantable en la aritmética de arreglos: para poder realizar una suma, el tamaño del primer vector \textit{debe ser exactamente igual} al tamaño del segundo.
+
+Si usted tiene cinco platos de pasta pero solo cuatro porciones de salsa, \textit{NumPy} no va a "adivinar" qué plato se queda vacío; simplemente lanzará un error (\textit{ValueError}) y detendrá su cocina industrial. En el caso de la multiplicación existen otras reglas de etiqueta matemática, pero eso lo veremos más adelante, cuando sea estrictamente necesario para no saturar su paciencia.

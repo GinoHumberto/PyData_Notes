@@ -1,0 +1,11 @@
+import numpy as np
+
+# Queremos saber la altura del pollo a los 90 grados
+angulo_grados = 90
+angulo_rad = np.radians(angulo_grados) # Convertimos a radianes
+
+altura = np.sin(angulo_rad)
+distancia = np.cos(angulo_rad)
+
+print(f"A los 90°, la altura (Seno) es: {altura}") # Debería ser 1.0
+print(f"A los 90°, la distancia (Coseno) es: {distancia}") # Debería ser casi 0

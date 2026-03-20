@@ -1,0 +1,437 @@
+\section{Propiedades y estructura de los arrays}
+
+\subsection{Dimensiones, forma, tamaño y tipo de datos}
+
+\subsubsection{Dimensiones \textit{ndim}}
+
+Las dimensiones son las que nos permiten entender cómo se organiza la información en el espacio (y en la memoria de su pobre computadora). La propiedad \textit{.ndim} —o \textit{number of dimensions} para el que todavía se pelea con el inglés— nos dice cuántas coordenadas necesita \textit{NumPy} para encontrar un dato específico.
+
+Básicamente, \textit{.ndim} nos informa si nuestro objeto es:
+
+\begin{itemize}
+\item \textit{Escalar (0 dimensiones):} Es un simple número suelto, como un 5. Imagine un punto en el vacío: no necesita dirección porque ya está ahí. No se mueva, no busque, solo es.
+\item \textit{Vector (1 dimensión):} Es una línea. Necesita una coordenada (el índice) para saber en qué posición de la fila se encuentra el dato.
+\item \textit{Matriz (2 dimensiones):} Es un plano o una tabla. Aquí ya necesita dos coordenadas: la fila y la columna. Si solo da una, \textit{NumPy} le entregará una fila entera y se quedará esperando el resto.
+\item \textit{Tensor (3 dimensiones):} Es un cubo. Aquí la cosa se pone tridimensional y necesita tres coordenadas: el piso (profundidad), la fila y la columna.
+\end{itemize}
+
+Saber el número de dimensiones es fundamental para no romper nada. Si usted intenta sumar un cubo con una línea, \textit{NumPy} le lanzará un error de dimensiones en la cara; usar \textit{.ndim} es su primera línea de defensa para depurar el código antes de que todo explote.
+
+Veamos \textit{.ndim} en acción:
+
+\begin{pycode}{Uso de .ndim en NumPy}
+import numpy as np
+
+# Uso de un vector simple 
+a = np.array([1, 2, 3])
+print(a.ndim)  # Resultado: 1
+
+# Uso de una matriz 
+b = np.array([
+    [1, 2],
+    [3, 4]
+    ])
+print(b.ndim)  # Resultado: 2
+
+# Uso de un tensor o paquete de matrices
+c = np.array([
+    [[1], [2]],
+    [[3], [4]]
+    ])
+print(c.ndim)  # Resultado: 3
+
+\end{pycode}
+
+Para aquellos que todavía no terminan de "cazar" las dimensiones visualmente, hay un truco sucio pero infalible: cuente cuántos corchetes ``\textit{[ ]}'' se abren al inicio del array. Si ve tres corchetes seguidos, felicidades, está ante un tensor de tres dimensiones. Si ve uno solo, es un vector. Es una regla simple, elegante y le ahorrará mirar la documentación más de lo estrictamente necesario.
+
+
+
+\subsubsection{Forma o \textit{shape} (para los bilingües)}
+
+Si \textit{.ndim} nos decía cuántas dimensiones tiene el objeto, \textit{.shape} nos indica qué tan "grande" es cada una de ellas. Esta propiedad es, básicamente, una radiografía de sus datos.
+
+Técnicamente, \textit{.shape} nos devuelve una \textit{tupla} (esos números entre paréntesis que no se pueden tocar), donde cada valor representa la cantidad de elementos en un eje específico.
+
+Aunque parezca una propiedad inofensiva, la consultará más veces que su saldo bancario, ya que:
+\begin{itemize}
+\item Nos permite conocer la magnitud de los datos antes de procesarlos.
+\item Es el juez que valida operaciones matemáticas: si intenta sumar matrices con \textit{shapes} distintos, la operación fallará miserablemente.
+\item Es fundamental para preparar los datos antes de enviarlos a librerías de gráficos como \textit{Matplotlib}.
+\end{itemize}
+
+Véalo en esta demostración técnica:
+
+\begin{pycode}{Uso de .shape en NumPy}
+import numpy as np
+
+# Un Vector
+vector = np.array([10, 20, 30, 40, 50])
+print(vector.shape) # Resultado: (5,) es decir 5 elementos en una sola linea. 
+
+# Una Matriz (2D)
+matriz = np.array([
+    [1, 2, 3],
+    [4, 5, 6]
+    ])
+print(matriz.shape) # Resultado: (2, 3) es decir  2 filas y 3 columnas.
+
+# Un Cubo (3D)
+cubo = np.zeros((2, 3, 4)) # Aqui utilizamos .zeros() para no morir escribiendo números
+print(cubo.shape) # Resultado: (2, 3, 4) que son 2 matrices, cada una de 3 filas y 4 columnas.
+
+\end{pycode}
+
+Un detalle para su salud mental: note que en el vector el resultado es \textit{(5,)}. Ese espacio vacío después de la coma está ahí para recordarle que solo hay una dimensión. No intente buscar el segundo número, no existe, es solo \textit{NumPy} siendo técnicamente correcto (y un poco molesto).
+
+
+
+\subsubsection{Tamaño o \textit{size}}
+
+Este es el último integrante de la "Santísima Trinidad" de la inspección. Mientras que los otros se preocupan por la estética y la estructura, \textit{.size} es un contador pragmático: nos dice cuántos elementos hay en total en el \textit{array}, sin importar cómo estén distribuidos en filas, columnas o dimensiones.
+
+Matemáticamente, \textit{.size} es el producto de todos los números que aparecen en \textit{.shape}. Por ejemplo:
+
+\begin{itemize}
+\item En un vector con \textit{.shape} (5,), el \textit{.size} es \(5\).
+\item En una matriz con \textit{.shape} (3,4), el \textit{.size} es \(3 \times 4 = 12\).
+\item En un tensor con \textit{.shape} (2,2,2), el \textit{.size} es \(2 \times 2 \times 2 = 8\).
+\end{itemize}
+
+Usted, lector escéptico, se cuestionará: "¿Realmente necesito saber cuántos datos hay en total?". La respuesta es un rotundo sí, principalmente para no hacer explotar su sistema. El atributo \textit{.size} nos ayuda a tener un control estricto de la memoria y es el juez supremo cuando queremos usar \textit{.reshape()} (lo veremos en la siguiente subsección); usted no puede transformar una tabla de 12 elementos en una de \(5 \times 5\)5×5, porque los datos no aparecen por arte de magia.
+
+En codigo (no muy diferente a los anteriores), esto se ve así:
+
+\begin{pycode}{Diferencia entre .size}
+import numpy as np
+
+# Creamos una matriz de 3 filas y 4 columnas
+
+matriz = np.array([
+[1, 1, 1, 1],
+[2, 2, 2, 2],
+[3, 3, 3, 3]
+])
+
+print(f"Total de elementos (.size): {matriz.size}") # Resultado: 12
+\end{pycode}
+
+
+\subsubsection{Tamaño, forma y dimensión}
+
+Por si todavía tiene una ensalada de conceptos en la cabeza, aquí tiene el resumen. \textit{.ndim} le dice en cuántas direcciones se mueven los datos; \textit{.shape} le da el mapa exacto de esas direcciones; y \textit{.size} le dice cuántos elementos hay en total.
+
+La diferencia se observa mejor en el código:
+\begin{pycode}{Diferencia entre .ndim .shape y .size}
+import numpy as np
+
+# Creamos una matriz de 3 filas y 4 columnas
+
+matriz = np.array([
+[1, 1, 1, 1],
+[2, 2, 2, 2],
+[3, 3, 3, 3]
+])
+
+print(f"Dimensiones (.ndim): {matriz.ndim}")  # Resultado: 2
+print(f"Forma (.shape): {matriz.shape}")      # Resultado: (3, 4)
+print(f"Total de elementos (.size): {matriz.size}") # Resultado: 12
+\end{pycode}
+
+
+\subsubsection{El metodo \textit{.reshape()}}
+
+Seguramente usted, lector indignado, saltará a mi yugular diciendo: "¡Esto no es un atributo, es un método! ¿Qué hace en esta sección?". Pues bien, el autor soy yo y considero que explicar \textit{.reshape()} aquí es mucho mejor que hacerlo más adelante, cuando usted probablemente ya haya olvidado qué es el \textit{.shape}.
+
+A diferencia de los atributos que vimos antes (que solo nos daban información), \textit{.reshape()} es una herramienta activa. Nos permite cambiar la estructura de un \textit{array} —sí, lo sé, suena a magia negra— \textit{sin tocar ni uno solo de los datos que tiene dentro}.
+
+\begin{ejemplo}
+    Imagine que tiene una tableta de chocolate con 12 cuadraditos dispuestos en una sola fila larga (nuestro chef se tomó un descanso, así que ahora comemos chocolate). \textit{.reshape()} es el acto de romper esa fila y reacomodarla para que ahora tenga 3 filas de 4 cuadraditos. El chocolate es el mismo y el peso es idéntico, pero su forma ha cambiado para que entre en una caja distinta.
+\end{ejemplo}
+
+Para utilizar este método, el \textit{.size} cobra más sentido que nunca. La regla de oro es inquebrantable: el número total de elementos debe ser exactamente el mismo antes y después de la transformación. Usted no puede generar datos de la nada ni puede hacer desaparecer cuadraditos de chocolate en el proceso; NumPy no tolera la magia contable.
+
+Véalo en el código:
+
+\begin{pycode}{Uso de .reshape()}
+import numpy as np
+
+# Creamos un vector de 12 elementos (del 0 al 11)
+vector = np.arange(12) # Forma actual: (12,) Tamaño: 12
+
+# Lo transformamos en una matriz de 3 filas y 4 columnas 
+matriz = vector.reshape(3, 4)
+print(matriz)
+"""
+Resultado:
+[[ 0,  1,  2,  3],
+[ 4,  5,  6,  7],
+[ 8,  9, 10, 11]]
+"""
+
+print(matriz.shape) # Resultado: (3, 4)
+\end{pycode}
+
+\begin{nota}
+\textit{El truco del comodín (-1):} Si usted es un poco perezoso (como todo buen programador), NumPy tiene un regalo para usted. Si conoce cuántas columnas quiere, pero no tiene ganas de calcular cuántas filas saldrán, puede usar el \textbf{-1}. Es un mensaje que dice: "Calcula tú este número basándote en el \textit{.size}".
+\end{nota}
+
+\begin{pycode}{El comodin -1 en reshape}
+import numpy as np 
+
+vector = np.arange(12)
+# Quiero 2 filas y no se cuantas columnas
+nueva_forma = vector.reshape(2, -1) # Resultado: Matriz de (2, 6)
+
+\end{pycode}
+
+
+\subsubsection{Tipos de datos \textit{.dtype}}
+
+Si recuerda el inicio de este apunte, mencionamos que un \textit{array} es estrictamente \textit{homogéneo}, todos los elementos deben ser del mismo tipo. Pues bien, con \textit{.dtype} (\textit{data type}) podemos interrogar al arreglo para saber exactamente de qué estamos hablando.
+
+\begin{nota}
+    \textit{Recordatorio}: Si usted combina tipos de datos, \textit{NumPy} no se va a quejar, pero tomará decisiones por usted. Transformará todo al tipo de dato más "complejo" o flexible que encuentre. Si mete un \textit{float} en una lista de enteros, todos serán \textit{floats}. Si mete un \textit{string}, prepárese, todos los números se convertirán en texto y perderán sus propiedades matemáticas.
+\end{nota}
+
+El código no es muy complejo, vease:
+\begin{pycode}{.dtype para tipo de dato}
+import numpy as np 
+
+# Creamos un array simple
+array = np.array([1,2,3])
+print(f'Tipo de dato: 'array.dtype) # devuelve: int
+    
+\end{pycode}
+
+Es vital consultar \textit{.dtype} antes de realizar operaciones matemáticas complejas; no querrá intentar calcular una raíz cuadrada sobre un \textit{array} que \textit{NumPy} decidió convertir en texto porque usted olvidó una comilla por ahí.
+
+
+
+\subsection{Conversión de tipos \textit{.astype()}}
+
+Para finalizar este bloque, \textit{NumPy} nos trae una función que nos permite forzar el tipo de dato de un \textit{array} ya existente: \textit{.astype()}.
+
+Suponga que está realizando una investigación y se encuentra con millones de datos de coma flotante (\textit{floats}). Usted determina que no tiene sentido cargar la memoria de su computadora con tanta precisión y cree que el error de conversión de decimal a entero no es significativo para su análisis. Pues bien, aquí es donde entra \textit{.astype()} para salvarle las papas.
+
+También, siempre que sea posible, usted puede convertir texto a números, siempre y cuando ese texto sea realmente un número disfrazado de \textit{string}.
+
+Vea el código en acción:
+
+\begin{pycode}{Uso de .astype()}
+import numpy as np
+
+# Creamos un array de decimales (floats)
+precios = np.array([10.5, 20.9, 30.2])
+print(precios.dtype) # Resultado: float64
+
+# Queremos solo la parte entera
+precios_enteros = precios.astype(int)
+print(precios_enteros) # Resultado: [10, 20, 30]
+# (Ojo: no redondea, corta el decimal)
+
+# Convertir a texto
+precios_texto = precios.astype(str) 
+print(precios_texto) # Resultado: ['10.5', '20.9', '30.2']
+
+# Convertir de texto a float
+precios_flotantes = precios_texto.astype(float)
+print(precios_flotantes)
+
+\end{pycode}
+
+\begin{nota}
+    \textbf{Advertencia:} Tenga mucho cuidado con el "hachazo". Al convertir de \textit{float} a \textit{int}, el valor 20.9 se convierte en 20, no en 21. Si su jefe le pregunta por qué faltan decimales en el presupuesto, no me eche la culpa a mí, yo le advertí que \textit{NumPy} es eficiente, pero no necesariamente piadoso con el redondeo.
+\end{nota}
+
+
+
+
+\subsection{Indexación y slicing}
+
+Ahora que ya sabemos crear, deformar e interrogar a nuestros arreglos, llega el momento de aprender a operarlos.
+
+La Indexación y el Slicing (o rebanado, para los que prefieren el castellano) son las herramientas que nos permiten extraer elementos específicos de un array. 
+
+\begin{ejemplo}
+Imagine que su matriz es una pizza gigante: la indexación es elegir un pepperoni exacto, y el slicing es llevarse una porción completa (o media pizza, si tiene hambre de datos).
+\end{ejemplo}
+
+\subsubsection{Indexación}
+
+La indexación es el sistema de direcciones que utiliza \textit{NumPy}. Si un \textit{array} es un estante lleno de cajas, la indexación es la etiqueta que tiene cada una para que sea fácil encontrarla, sacarla y usar lo que hay dentro.
+
+La indexación puede ser vectoria, matricial o tensorial;
+
+Una indexación vectorial (recuerde la fila de su secundaria), es como señalar a alguien de la fila. Para señalar a alguien solo se necesita saber su posición numérica o índice. 
+
+La indexcación matricial es cuando tenemos una tabla, recuerde el ejemplo de la reina en el tablero de agedrez, si usted la quisiera señalar deberia señalar la coordenada \(ij\), es decir la posición de la fila y columna (no recuerdo exactamente la posición, pero seria por ejemplo \(5C\)).
+
+Por ultimo la indexación tensorial es un poco más compleja, imagine un cubo de Rubik; es como señalar un color específico en una de las caras internas del cubo. Aquí ya necesita tres coordenadas (o más, si es que usted disfruta del sufrimiento matemático).
+
+Para utilizar la indexación, simplemente colocamos los corchetes inmediatamente después del nombre del \textit{array}: \texttt{array[indice]}.
+
+Veamoslo actuar en código:
+
+\begin{pycode}{Indexación en NumPy}
+import numpy as np
+
+# --- Caso 1D --- #
+edades = np.array([20, 25, 30, 35])
+print(edades[0])  # Resultado: 20
+print(edades[-1]) # Resultado: 35 (el último)
+
+# --- Caso 2D --- #
+# Tabla de 2 filas y 3 columnas
+ventas = np.array([
+    [100, 120, 150], # Fila 0
+    [200, 210, 250]  # Fila 1
+    ])
+dato = ventas[1, 0] # ventas del primer mes(columna), segundo año(fila)
+print(dato) # Resultado: 200
+\end{pycode}
+
+Indexar no solo sirve para leer datos como si fuera un chisme; también sirve para escribir y corregir la realidad de su \textit{array}.
+
+\begin{pycode}{Cambiando valores}
+import numpy as np
+
+precios = np.array([10.5, 20.0, 35.0])
+# Queremos cambiar el segundo precio por 22 (ahora es 20)
+precios[1] = 22.0
+
+print(precios) # [10.5, 22.0, 35.0]
+\end{pycode}
+
+Si aún no termina de visualizarlo, considere este ejemplo culinario: 
+\begin{ejemplo}
+    \label{ejemplo_chef_lasana}
+    El chef armo una lasaña de 9 porciones perfectas (3 filas y 3 columnas). Cada pedazo tiene un ingrediente secreto: uno tiene un borde quemado, otro mucha salsa, otro está fria, uno tiene demasiado queso, etc (Este chef no salio muy bueno ¡Se parece a mí!). Usted quiere elegir la de borde quemadito, pues no le parece nada cómico comer una porción con muchisima salsa, una porción fria o una que solo sabe a queso. Ademas le gusta esa textura crocante que deja el quemado. Pues usted cuando elije la porción esta haciendo una indexación (ademas de la ponderación) por lo tanto eligiria en el array lasaña el indice [i, j] donde se encuentra la lasañá con borde quemadito.
+\end{ejemplo}
+
+\emph{Indexación booleana}
+
+La indexación no termina con las coordenadas. El creador de \textit{NumPy} sabía perfectamente que ni usted ni yo vamos a saber siempre en qué índice exacto se encuentra la porción de borde quemadito del ejemplo \ref{ejemplo_chef_lasana}. Por lo tanto, diseñó un "colador inteligente".
+
+Se llama \textit{booleana} porque solo entiende dos estados: \textit{True} o \textit{False} (\textit{verdadero} o \textit{falso}, si es que nunca se dignó a abrir un libro de inglés).
+
+La indexación booleana funciona en tres pasos:
+\begin{enumerate}
+\item \textbf{La pregunta:} Le preguntamos al \textit{array}: "¿Dónde la temperatura de la lasaña superó los 100 grados?".
+\item \textbf{La máscara:} \textit{NumPy} analiza cada elemento y crea un nuevo arreglo de verdaderos y falsos (\textit{máscara}), marcando con \textit{True} solo los lugares que cumplen la condición.
+\item \textbf{El filtrado:} Le pedimos a \textit{NumPy} que nos entregue el contenido original solo de los lugares donde la respuesta fue \textit{True}.
+\end{enumerate}
+
+Mas allá de su elección de la porcion de lasañá, en un análisis numérico serio (no más importante que elegir bien la porción de lasaña) esto nos ayuda a filtrar datos según lo que nos interesa: apartar valores atípicos (\textit{outliers}), segmentar clientes por edad o encontrar acciones que superaron cierto precio.
+
+En código:
+
+\begin{pycode}{Indexación Booleana paso a paso}
+import numpy as np
+
+edades = np.array([15, 25, 12, 40, 18])
+
+# 1. La pregunta
+# ¿Quiénes son mayores de edad (>= 18)?
+# 2. La mascara o la busqueda de verdaderos y falsos
+mascara = edades >= 18
+print(mascara) # Resultado: [False,  True, False,  True,  True]
+# Los pasos 1 y dos estan relacionados
+
+#2. filtrar el array 
+mayores = edades[mascara]
+print(mayores) # Resultado: [25, 40, 18]
+
+# --- Forma rápida (Todo en una línea) --- #
+
+resultado_directo = edades[edades >= 18]
+
+\end{pycode}
+
+La indexación booleana también puede ser condicional. Si usted quiere filtros más complejos, de esos que requieren un "esto Y aquello" o "esto O lo otro", podemos usar operadores lógicos.
+
+Ahora, Dios sabrá por qué \textit{NumPy} decidió no usar las palabras \textit{and}, \textit{or} y \textit{not} de \textit{Python} convencional (realmente es por una cuestión de eficiencia a nivel de bits), pero nos obliga a usar estos símbolos especiales:
+
+\begin{itemize}
+\item \textit{AND} (Y): Se usa el símbolo ``\&'' (ampersand).
+\item \textit{OR} (O): Se usa el símbolo ``|'' (la barra vertical o \textit{pipe}).
+\item \textit{NOT} (NO): Se usa el símbolo ``\textasciitilde'' (la virgulilla de la "ñ").
+\end{itemize}
+
+Veamos esto en código:
+
+\begin{pycode}{Filtros complejos}
+
+precios = np.array([10, 50, 100, 150, 200])
+# Precios entre 60 y 180
+# Cada condición debe ir entre paréntesis ( )
+filtro = (precios > 60) & (precios < 180)
+
+print(precios[filtro]) # Resultado: [100, 150]
+
+\end{pycode}
+
+
+
+\subsubsection{Slicing}
+Si la indexación era señalar la porción de lasaña con el dedo, el \textit{slicing} (o rebanado) es meter el cuchillo y llevarse una sección entera utilizando el operador de los dos puntos (:).
+
+El slicing consiste de la siguiente sintaxis o estructura básica:
+\begin{verbatim}
+    array([Inicio:Fin:Paso])
+\end{verbatim}
+\begin{nota}
+    El fin al igual que en \textit{np.arange} no considera el valor final, es decir nunca lo toca (recuerde el intervalo semiabierto).
+\end{nota}
+
+El slicing vectorial es el más intuitivo. Imagine un \textit{array} de 6 elementos \((\left[0,1,2,3,4,5\right])\). Usted puede realizar los siguientes cortes:
+\begin{itemize}
+    \item array[1:4]: Te da los elementos en las posiciones 1, 2 y 3. (El 4 queda fuera).
+    \item array[:3]: Los primeros tres (del inicio hasta el índice 2).
+    \item array[3:]: Desde el índice 3 hasta el final.
+    \item array[::2]: Todo el array, pero saltando de dos en dos (posiciones 0, 2, 4).
+\end{itemize}
+
+En el caso del slicing matricial, tenemos filas y columnas, por lo tanto usariamos comas para separar los cortes de cada dimensión:
+\begin{verbatim}
+    array([corte_filas,corte_columnas: ...])
+\end{verbatim}
+Se pueden realizar por ejemplo estos slicing:
+\begin{itemize}
+    \item Seleccionar una fila entera: array[1, :] (Fila índice 1, todas las columnas).
+    \item Seleccionar una columna entera: array[:, 0] (Todas las filas, columna índice 0).
+    \item Seleccionar una sub-tabla: array[0:2, 1:3] (Filas 0 y 1; columnas 1 y 2).
+\end{itemize}
+
+No nos vamos a meter a tensores, ya que nadie quiere perder la cabeza (ese nadie soy yo).
+
+Veamos el slicing en acción en codigo:
+\begin{pycode}{Slicing en NumPy}
+
+import numpy as np
+
+# Creamos una matriz de 4x4 (puedes imaginar meses vs productos)
+datos = np.arange(16).reshape(4, 4)
+"""
+[[ 0,  1,  2,  3],
+[ 4,  5,  6,  7],
+[ 8,  9, 10, 11],
+[12, 13, 14, 15]]
+"""
+
+# 1. Extraemos la segunda fila completa
+fila_2 = datos[1, :] # [4, 5, 6, 7]
+
+# 2. Extraer la última columna completa
+ultima_col = datos[:, -1] # [3, 7, 11, 15]
+
+#3. Extraer el cuadrado central (2x2)
+centro = datos[1:3, 1:3]
+"""
+[[ 5,  6],
+[ 9, 10]]
+"""
+\end{pycode}
+
+\begin{nota}
+    \textit{Atención}: El \textit{slicing} en \textit{NumPy} no crea un \textit{array} nuevo, crea una "vista" del original. Esto significa que si usted modifica la rebanada, \textit{también modifica el array original}. Si quiere un objeto independiente para hacer sus experimentos sin arruinar la fuente, use \textit{.copy()}.
+\end{nota}

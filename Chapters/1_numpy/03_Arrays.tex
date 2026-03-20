@@ -1,0 +1,203 @@
+\section{Creación de Arrays}
+
+Hay varias formas de generar un \textit{array}: puede ser a través de listas o tuplas, mediante funciones como \textit{arange}, \textit{linspace}, y más. Sin embargo, usted no está aquí para que yo simplemente se las mencione; usted las quiere ver en acción, así que vayamos a eso.
+
+\subsection{Arrays desde listas o tuplas}
+
+\textit{NumPy} nos permite transformar las estructuras clásicas de \textit{Python} en potentes arreglos utilizando la función que ya hemos estado ``spoileando'' en las secciones anteriores:
+
+\begin{verbatim}
+np.array()
+\end{verbatim}
+
+Si ya tiene una lista o una tupla y desea dotarla de superpoderes para operar con ella en \textit{NumPy}, lo único que debe hacer es pasarle ese objeto como argumento a la función. Véalo en el siguiente bloque de código:
+
+\begin{pycode}{array desde listas y tuplas}
+import numpy as np
+
+# ---- Caso Lista ---- #
+# Tenemos una lista
+lista = [1,2,3,4,5] # El autor no tenía muchas ganas de pensar nombres hoy.
+
+# La convertimos en array 
+array_desde_lista = np.array(lista) # ¡Si no pense el nombre de la lista, menos el del array!
+
+# ---- Caso Tupla ---- #
+tupla = (10,20,30,40)
+array_desde_tupla = np.array(tupla)
+
+# ---- Sorpresa ---- #
+lista_bidimensional = [[1,2,3], [4,5,6]] # ¡Estamos creando una matriz!
+array_matriz = np.array(lista_bidimensional)
+\end{pycode}
+
+Para su felicidad, usted, mi lector ansioso, ahora puede ver cómo se materializa en código aquel concepto de \textit{matriz} que explicamos en la introducción. Note cómo \textit{NumPy} interpreta automáticamente las listas anidadas como filas de una tabla.
+
+\subsection{Función \textit{np.arange}}
+
+\textit{Python} nativo tiene una función llamada \textit{range}. Pues bien, \textit{np.arange} (que proviene de \textit{array range}, de ahí la "a" adicional) es la versión supercargada de esa función.
+
+Es una herramienta que crea un \textit{array} de una sola dimensión, rellenándolo con números que siguen un orden lógico: una \textit{progresión aritmética}.
+
+Una progresión aritmética es simplemente una serie de números donde la distancia entre un escalón y el siguiente es siempre la misma. Matemáticamente, una progresión con paso tres (3) se vería así:
+\[
+2,5,8,11,14
+\]
+
+Más allá de la matemática, imagine a \textit{np.arange} como una máquina que anota números en una lista, a la cual usted debe darle tres instrucciones: dónde comenzar, dónde terminar y de cuánto en cuánto avanzar. La estructura es:
+
+\begin{verbatim}
+np.arange(inicio, fin, paso)
+\end{verbatim}
+
+Pero ojo al piojo, el número de parada \textit{nunca} pero \textit{nunca} se incluye en el resultado final. S le pides que pare en \(10\), podria llegar hasta el \(9,9999\dots\) pero nunca tocará el \(10\). Matemáticamente esto se veria como \([inicio,fin)\) donde el ``\([]\)'' es un intervalo cerrado, es decir que los números extremos está dentro, es decir lo incluye, y el ``\(()\)'' es un intervalo abierto, donde uno se puede acercar mucho al valor, pero nunca tocar el borde.
+
+Veámoslo con algunos ejemplos prácticos:
+\begin{pycode}{np.arange}
+import numpy as np
+
+# Generamos una propersión aritmética solo con el valor donde debe finalizar (automaticamente comienza en 0)
+arange_sin_inicio_ni_paso = np.arange(5) # si lo imprimieramos nos devolveria [0, 1, 2, 3, 4]
+
+# Con inicio y fin
+arange_sin_paso = np.arange(5, 10) # nos devolveria [5, 6, 7, 8, 9]
+
+# Con todo incluido
+arange_completo = np.arange(0,11,2) # devuelve [0, 2, 4, 6, 8, 10]
+
+# Con decimales
+arange_decimal = np.arange(0, 1, 0.1) # devuelve decimales del 0.1 al 0.9
+
+\end{pycode}
+
+Usted, lector escéptico, me dirá: "¿Para qué me sirve esto en la vida real?". Pues claramente no le servirá para ir a comprar el pan, pero si usted quisiera realizar un gráfico de ventas mes a mes, podríamos utilizar esta función para generar los números de los meses del 1 al 12 sin complicaciones.
+
+Ahora, si a usted le interesan las finanzas, imagínese que quiere proyectar qué pasa con una inversión frente a una tasa de interés que varía desde el \(1\%\) al \(10\%\), saltando de medio punto en medio punto. En lugar de escribir cada valor a mano como un pasante mal pagado, usted simplemente ejecutaría:
+
+\begin{verbatim}
+tasas = np.arange(0.01, 0.105, 0.005)
+\end{verbatim}
+
+Fíjese que usamos \(0.105\) como límite final para que \textit{NumPy} incluya el \(0.10\) \((10\%)\) en el resultado. Gracias a la \textit{vectorización} que vimos antes, usted podría calcular el retorno de inversión para todas esas tasas al mismo tiempo con una sola línea de código. La eficiencia no es solo para las máquinas; es para que usted pueda terminar su trabajo antes y dedicarse a cosas más interesantes.
+
+
+
+\subsection{Función \textit{np.linspace}}
+
+Si \textit{np.arange} es una máquina que da pasos a tamaños fijos, \textit{np.linspace} o \textit{Linear space} es una máquina que rellena un espacio.
+
+Básicamente, mientras que en \textit{np.arange} generábamos datos definiendo el "salto", a \textit{np.linspace} le decimos cuántos datos queremos dentro de un intervalo. Es decir, \textit{np.linspace} tiene un inicio, un final y una cantidad de elementos que deseamos repartir equitativamente entre ambos puntos. La estructura es:
+
+\begin{verbatim}
+np.linspace(inicio, fin, cantidad)
+\end{verbatim}
+
+A diferencia de su primo \textit{arange}, aquí hay una regla de cortesía importante, \textit{np.linspace} utiliza intervalos cerrados \([inicio,fin]\), lo que significa que el número de inicio y el de fin sí están incluidos en el resultado. Véalo en código:
+
+\begin{pycode}{np.linspace}
+import numpy as np 
+
+# Queremos generar 4 números repartidos entre 0 y 10.
+linspace_basico = np.linspace(0, 10, 4) # nos retorna [ 0. , 3.33333333, 6.66666667, 10. ]
+
+\end{pycode}
+
+Usted, lector insistente, me va a preguntar para qué sirve esto. Pues bien, \textit{np.linspace} es el mejor amigo de los gráficos. Si tenemos una función matemática y queremos dibujar una curva suave en lugar de una línea quebrada y espantosa, simplemente le pedimos a \textit{linspace} que genere 100 o 1.000 puntos en el intervalo. A más puntos, más suave será la curva y más profesional se verá su trabajo.
+
+
+\subsection{Función \textit{np.zeros}}
+
+La función \textit{np.zeros} es como cuando te mudas solo y abres la heladera por primera vez: está totalmente vacía. Para los que vienen del mundo de la oficina, es como abrir una hoja de \textit{Excel} nueva; no tiene datos aún, pero está lista para que usted empiece a rellenarla.
+
+En el análisis de datos, muchas veces no tenemos los datos de inmediato, pero ya sabemos qué estructura van a tener. Esto nos permite reservar un lugar en la memoria de la computadora mediante la función:
+
+\begin{verbatim}
+np.zeros()
+\end{verbatim}
+
+Esta función crea un \textit{array} donde absolutamente todos los elementos son el número 0. Es la forma más común de "inicializar" un arreglo antes de llenarlo con información real.
+
+\begin{ejemplo}
+Imagine que nuestro chef de la boda quiere realizar una encuesta sobre la calidad de los platos. Antes de empezar a preguntar, arma una planilla con 1.000 filas vacías (es decir, con ceros). A medida que cada invitado responde, el chef anota el resultado; por detrás, \textit{NumPy} borra el cero y escribe el nuevo dato.
+\end{ejemplo}
+
+Por lo tanto, \textit{np.zeros()} es nuestra herramienta para crear esa "planilla en blanco". Para que funcione, necesita que usted le dé la \textit{forma} (\textit{shape}) dentro de los paréntesis: si quiere un vector, pase un solo número; si quiere una matriz, pase un par de números entre paréntesis (una tupla).
+
+Véalo en código:
+
+\begin{pycode}{np.zeros}
+import numpy as np 
+
+# Creamos una lista de un vector con 5 ceros:
+vector_vacio = np.zeros(5) # Retorna [0., 0., 0., 0., 0.]
+
+# Creamos una matriz de 2 filas y 3 columnas
+matriz_vacia = np.zeros((2, 3)) # OJO, es muy importante el doble parentesis, ya que el interno define la tupla y el de fuera la función.
+
+# La matriz vacia retornaria:
+# [[0., 0., 0.],
+# [0., 0., 0.]]
+
+# Si quiere enteros:
+vector_enteros_vacios = np.zeros(4, dtype=int) # Retorna [0, 0, 0, 0]
+
+\end{pycode}
+
+
+\subsection{Función \textit{np.ones}}
+
+Si \textit{np.zeros()} creaba una pizarra de ceros, \textit{np.ones()} crea un \textit{array} donde todos los elementos son, lógicamente, el número 1. Esta función es sumamente útil cuando necesitamos inicializar valores que luego servirán como base para multiplicaciones o para crear "máscaras" de datos.
+
+\begin{ejemplo}
+    Imagine que tiene un vector de precios y quiere aumentar todos un \(10\%\) Una forma elegante de hacerlo sería crear un vector de unos del mismo tamaño, sumarle \(0.10\) (quedando todos en \(1.10\)) y luego multiplicar ese vector por sus precios originales.
+\end{ejemplo}
+
+En cuanto a la sintaxis, funciona exactamente igual que \textit{np.zeros()}, solicitando la "forma" (\textit{shape}) deseada:
+
+Vease en código:
+
+\begin{pycode}{Uso de np.ones}
+import numpy as np
+
+vector_unos = np.ones(3) # Retorna [1., 1., 1.]
+
+matriz_unos = np.ones((2, 2))
+# Retorna
+# [[1., 1.],
+# [1., 1.]]
+
+\end{pycode}
+
+\subsection{Función \textit{np.eye}}
+
+Esta función tiene un nombre que cobra sentido en inglés: la palabra \textit{eye} suena exactamente igual que la letra ``I'', que en matemáticas representa a la \textit{Matriz Identidad}. Lamentablemente, en español nos perdemos el juego de palabras, ya que ``ojo'' no tiene ninguna relación fonética con ``identidad''.
+
+Una matriz identidad es una tabla donde todos los números son \(0\), excepto en la \textit{diagonal principal} (aquella que recorre la matriz desde la esquina superior izquierda hasta la inferior derecha). En esa diagonal, mandan los unos. Matemáticamente, se ve así:
+\[
+\begin{bmatrix}
+    {\color{red}1} & 0 & 0 \\
+    0 & {\color{red}1} & 0 \\
+    0 & 0 & {\color{red}1}
+\end{bmatrix}
+\]
+
+Más allá de la pizarra, está nuestro código. A diferencia de las funciones anteriores, \textit{np.eye()} suele recibir un solo número, ya que las matrices identidad son, por definición, cuadradas (mismas filas que columnas). Veamos el código:
+
+\begin{pycode}{np.eye}
+import numpy as np
+
+identidad = np.eye(3)
+
+"""
+Resultado:
+[[1., 0., 0.],
+[0., 1., 0.],
+[0., 0., 1.]]
+"""
+\end{pycode}
+
+En la aritmética común, el número \(1\) es el "elemento neutro" de la multiplicación: cualquier número multiplicado por \(1\) da el mismo número \((5\times1=5)\).
+En el mundo de las matrices (Álgebra Lineal), la Matriz Identidad cumple esa misma función. Si multiplicas cualquier matriz por la Identidad, obtienes la misma matriz original.
+
+¿Para qué nos sirve esto en análisis de datos? Muchas veces multiplicamos matrices para aplicar transformaciones, como rotar un gráfico, aplicar pesos a indicadores financieros o realizar proyecciones complejas donde necesitamos un "punto de partida" neutro.
+
