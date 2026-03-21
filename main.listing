@@ -1,11 +1,13 @@
 import numpy as np
 
-# Queremos saber la altura del pollo a los 90 grados
-angulo_grados = 90
-angulo_rad = np.radians(angulo_grados) # Convertimos a radianes
+a = np.array([1, 1, 1])
+b = np.array([2, 2, 2])
 
-altura = np.sin(angulo_rad)
-distancia = np.cos(angulo_rad)
+# Apilamos hacia arriba (Vertical)
+vertical = np.vstack((a, b)) # Resultado: una matriz de 2x3
 
-print(f"A los 90°, la altura (Seno) es: {altura}") # Debería ser 1.0
-print(f"A los 90°, la distancia (Coseno) es: {distancia}") # Debería ser casi 0
+# Apilamos hacia el lado (Horizontal)
+horizontal = np.hstack((a, b)) # Resultado: un vector largo de 6 elementos
+
+print("Vertical:\n", vertical)
+print("Horizontal:", horizontal)

@@ -1,0 +1,112 @@
+\chapter{Manipulación de arrays y filtrado}
+
+Además del \textit{.reshape} visto en la sección de propiedades y la indexación y \textit{slicing}, existen otras formas de manipular y filtrar datos para que confiesen lo que necesitamos.
+
+\section{Manipulación de arrays}
+
+\subsection{Concatenación y apilamiento}
+
+Si usted, como todo ser normal, viene del mundo de las hojas de cálculo, la concatenación de \textit{arrays} es simplemente la forma técnica de decir "copiar y pegar rangos de celdas" para armar una tabla más grande.
+
+\subsubsection{Concatenación (\textit{np.concatenate})}
+
+Es la forma más general de unir dos o más arreglos. Esta función pega una lista de \textit{arrays} uno tras otro a lo largo de un eje específico.
+
+Sin embargo, el autor sabe lo difícil que puede ser visualizar ejes en la cabeza sin que le empiece a doler la nuca, así que lo vamos a explicar en ``modo Umpa Lumpa''.
+
+\begin{ejemplo}
+Imagine que se encuentra en la fábrica de chocolates de Willy Wonka (esperemos que Paramount no me cobre derechos de autor). Usted y su pequeño compañero de diminuto tamaño están fabricando dos tipos de dulces: los rojos y los azules (dos arreglos vectoriales).
+$$
+\begin{aligned}
+\text{\textit{Caramelos rojos}} &= [R, R, R] \
+\text{\textit{Caramelos azules}} &= [A, A]
+\end{aligned}
+$$
+Wonka grita: ¡Concatenen! Lo que usted hace es colocar los caramelos azules justo donde terminan los rojos, dándonos una sola fila:
+\[
+\left[R, R, R, A, A\right]
+\]
+\end{ejemplo}
+
+Pero, mi pequeño compañero Umpa Lumpa, a veces la cosa se complica cuando dejamos los caramelos y pasamos a las bandejas (matrices) de \textit{brownies}.
+
+Si utilizamos \textit{np.concatenate()} en matrices, debemos definir los \textit{axis} (ejes). El \textit{axis=0} hace que coloque una bandeja encima de la otra. Básicamente, la pila crece hacia arriba.
+
+Pero tenga cuidado: apilar \textit{brownies} no es una actividad fácil cuando hablamos de millones de bandejas. Todas deben tener exactamente la misma dimensión en el ancho. No podemos poner una bandeja de cuatro \textit{brownies} sobre una de dos, porque se nos caería la torre y Wonka nos despediría sin indemnización.
+
+\begin{nota}
+    El \textit{axis=0} afecta a las filas. Si concatenamos dos matrices de \(2 \times 3\) usando \textit{axis=0}, obtendremos una de \(4\times 3\). El ancho se mantiene igual, pero la estructura ahora es más alta.
+\end{nota}
+
+``¿Qué pasa si en vez de ordenar por filas ordenamos por columnas?''. Pues lo único que debe hacer es utilizar \textit{axis=1}. Con esto le decimos a la máquina que pegue una bandeja al lado de la otra. Aquí también hay una condición: a Wonka (\textit{NumPy}) no le gusta que las bandejas tengan distinto largo (filas). Si intenta pegar una bandeja de 3 filas al lado de una de 2, la línea no encajaría y terminaría en la calle.
+
+Véalo en el código de la fábrica:
+
+\begin{pycode}{Concatenación}
+import numpy as np
+
+# Inventario de dulces
+bandeja_1 = np.array([[1, 1], [1, 1]]) # 2x2
+bandeja_2 = np.array([[2, 2], [2, 2]]) # 2x2
+
+# Unir verticalmente (Hacer la torre más alta)
+torre = np.concatenate((bandeja_1, bandeja_2), axis=0) # Resultado: Una matriz de 4x2
+
+# Unir horizontalmente (Hacer la fila más larga)
+fila_larga = np.concatenate((bandeja_1, bandeja_2), axis=1) # Resultado: Una matriz de 2x4
+\end{pycode}
+
+\begin{nota}
+    \textit{Truco de sintaxis:} Fíjese que los arreglos que quiere unir van dentro de un par de paréntesis extra \texttt{((a, b))}. Esto es porque \textit{np.concatenate} espera una "secuencia" (como una tupla o lista) de \textit{arrays}, no los \textit{arrays} sueltos.
+\end{nota}
+
+Ahora usted entiende que es cocatenar una matriz y un vector (sin la parte matemática). 
+
+Pero ¿Para qué sirve esto fuera de la fábrica de chocolates? Usted, que probablemente no tiene un contrato vigente con el señor Wonka, se preguntará: ``¿Y para qué quiero saber esto?''. La respuesta es que, en el análisis de datos, la concatenación es su mejor amiga cuando los registros vienen por separado.
+
+Imagine estas situaciones cotidianas para un analista: 
+\begin{itemize}
+    \item Suponga que su sistema genera un registro de ventas diferente cada día. Si usted quiere realizar un análisis semanal, no va a mirar siete archivos por separado como un monje medieval; usted va a concatenar esos siete registros para tener un reporte semanal sólido en un solo \textit{array}.
+    \item \textit{Fusión de fuentes:} Si tiene dos bases de datos que hablan del mismo tema (por ejemplo, encuestas de dos sucursales distintas), al concatenarlas fortalece su muestra. Una muestra más grande significa una estadística más precisa y una media de datos que no miente tanto.
+\end{itemize}
+
+En resumen, concatenamos para unificar. Un dato suelto es una anécdota, mil datos son una estadística.
+
+
+\subsubsection{Apilamiento}
+
+Seamos sinceros, estar peleandose con los ejes (\textit{axis=0, axis=1}) es una actividad de alto riesgo para su salud mental. \textit{NumPy} sabe que usted es un ser humano (o algo parecido) y le ofrece ``atajos'' semánticos que hacen lo mnismo que concatenate, pero con nombres que hasta un niño de cinco años entenderia.
+
+Si \textit{concatenate} es la herramienta multiuso, \textit{vstack} y \textit{hstack} son herramientas especializadas. Sus nombres vienen del inglés \textit{vertical stack} (apilamiento vertical) y \textit{horizontal stack} (apilamiento horizontal).
+
+\begin{itemize}
+\item \textit{np.vstack((a, b)):} Es el equivalente a \textit{concatenate} con \textit{axis=0}. Apila los arreglos verticalmente, uno sobre otro, como si estuviera armando una torre de panqueques.
+\item \textit{np.hstack((a, b)):} Es el equivalente a \textit{concatenate} con \textit{axis=1}. Apila los arreglos horizontalmente, uno al lado del otro, como si estuviera formando una fila en el supermercado.
+\end{itemize}
+
+Fíjese qué limpio queda el código cuando dejamos de hablar de "ejes" y empezamos a hablar de "direcciones":
+
+\begin{pycode}{Atajos de apilamiento}
+import numpy as np
+
+a = np.array([1, 1, 1])
+b = np.array([2, 2, 2])
+
+# Apilamos hacia arriba (Vertical)
+vertical = np.vstack((a, b)) # Resultado: una matriz de 2x3
+
+# Apilamos hacia el lado (Horizontal)
+horizontal = np.hstack((a, b)) # Resultado: un vector largo de 6 elementos
+
+print("Vertical:\n", vertical)
+print("Horizontal:", horizontal)
+\end{pycode}
+
+\begin{nota}
+    \textit{Un detalle de vital importancia:} Al igual que con \textit{concatenate}, estas funciones esperan recibir una tupla (es decir, doble paréntesis \texttt{((a, b))}). Si olvida el paréntesis interno, NumPy pensará que le está pasando argumentos extra y le lanzará un error que le arruinará la tarde.
+\end{nota}
+
+
+
+
+\subsection{División de arrays (\textit{split})}
