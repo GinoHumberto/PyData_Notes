@@ -1,0 +1,185 @@
+\section{Inicio}
+
+\subsection{¿Qué es pandas?}
+
+\textit{Pandas} es la librería de \textit{Python} que se especializa en el manejo y análisis de datos. Su nombre es un juego de palabras que proviene de \textit{Panel Data} (datos de panel), un término econométrico que se refiere a conjuntos de datos que observan a los mismos sujetos a lo largo de varios periodos de tiempo.
+
+Lo que hace a \textit{Pandas} tan especial es que introduce estructuras de datos potentes y flexibles diseñadas para trabajar con información tabular. Cuando hablamos de información tabular, nos referimos a los datos que normalmente encontraría en un archivo de \textit{Excel}, un \textit{CSV} o una tabla de una base de datos \textit{SQL}.
+
+\subsection{Utilización}
+
+\textit{Pandas} nos permite cargar, limpiar y transformar datos con apenas un par de líneas de código. Lo más importante es que está construido sobre \textit{NumPy}; esto significa que hereda toda su velocidad y eficiencia, pero le añade una capa de "amabilidad" para el usuario.
+
+Sin enroscarnos mucho: \textit{Pandas} es su pan de cada día para la manipulación de datos. La va a utilizar mucho más de lo que cree, especialmente cuando los datos del mundo real vengan sucios, incompletos o desordenados.
+
+\subsection{Diferencia con \textit{NumPy}}
+
+Aunque son parientes cercanos, sus personalidades son muy distintas, \textit{NumPy} es un especialista en cálculos numéricos y álgebra lineal avanzada, \textit{Pandas} es un experto en la gestión, limpieza y estructuración de la información. Mientras que \textit{NumPy} exige datos homogéneos (todos los elementos del \textit{array} deben ser del mismo \textit{dtype}). \textit{Pandas}, en cambio, brilla con datos heterogéneos; puede tener nombres, fechas, booleanos y números conviviendo en una misma tabla sin que nadie se queje.
+
+\subsection{¿Cuándo conviene usar pandas?}
+
+Vamos a elegir \textit{Pandas} siempre que: Manejemos datos tabulares, necesitemos limpiar y preprocesar la información y queramos realizar un análisis exploratorio antes de pasar a los ``cálculos locos'' de \textit{NumPy}.
+
+
+\section{Series y Data Frame}
+
+\subsection{Serie}
+
+Una serie es el equivalente a un \textit{array vectorial} de \textit{NumPy}, pero con una diferencia clave. Una serie de \textit{Pandas} consta no solo de los datos, sino tambien de un índice (que por defecto es \(0,1,2,3,\dots\)).  
+
+Mientras que en \textit{NumPy} utilizabamos la indexación para acceder al dato (\texttt{array[0]}). En \textit{Pandas} utilizamos su \textit{``Etiqueta''} o nombre de su índice para acceder al dato, vea el ejemplo \ref{ejemplo_series_panda}
+
+\begin{ejemplo}
+    \label{ejemplo_series_panda}
+    En una empresa se dan los valores de ingreso de diferentes meses. Cada mes (enero, febrero, marzo, ...) es el indice de la tabla de excel. Cada valor de ingreso (200, 300, ...) es el dato de la tabla (el valor real). Si usted quisiera conocer el ingreso del mes de enero podria utilizar \texttt{serie['enero']} lo que le devolveria \#200.
+\end{ejemplo}
+
+Entonces para ver un dato según su indice se utiliza:
+\begin{verbatim}
+    serie[indice]
+\end{verbatim}
+
+Veamos la serie que planteamos en el ejemplo anterior en código:
+\begin{pycode}{Series en pandas}
+import pandas as pd
+
+# Definimos las variables
+indice = ['Enero', 'Febrero', 'Marzo']
+datos = [200, 100, 135]
+
+# Creamos la serie de Pandas
+ingresos_mensuales = pd.Series(datos, index=indice) # Con "index =" determinamos que valores queremos que sean los indices. 
+
+print(ingresos_mensuales) # Esto nos retorna toda la serie:
+# Enero      200
+# Febrero    100
+# Marzo      135
+# dtype: int64
+
+# Accedemos de forma directa por etiqueta:
+print('Ingresos del mes de marzo', ingresos_mensuales['Marzo']) # Retorna: Ingresos del mes de marzo 135
+\end{pycode}
+
+\begin{nota}
+    Aunque le pongamos nombres a los índices, \textit{Pandas} sigue recordando la posición numérica por debajo. Por lo tanto, \texttt{ingresos\_mensuales[0]} seguiría devolviendo \texttt{200} (Enero). Sin embargo, la magia de \textit{Pandas} es que usted ya no está obligado a contar posiciones.
+\end{nota}
+
+Otra forma de construir una serie en pandas es a partir de un diccionario, donde la ``key (llave)'' va a ser el indice y el ``value (valor)'' va a ser el dato. Veamos un ejemplo en código:
+\begin{pycode}{Serie a partir de diccionario}
+import pandas as pd
+
+# Creamos el diccionario
+ingresos_mensuales = {
+    'Enero':200, 'Febrero':100, 'Marzo':135
+}
+
+# Creamos la serie de pandas
+serie_de_ingresos = pd.Series(ingresos_mensuales)
+
+print(serie_de_ingresos) # Nos retorna:
+# Enero      200
+# Febrero    100
+# Marzo      135
+# dtype: int64
+\end{pycode}
+
+\subsection{Data Frame}
+
+Si una \textit{serie} era un \textit{array} simple (una sola columna), un \textit{Data Frame} es una matriz compleja o, para ser más precisos, una colección de series que comparten un mismo índice.
+
+Un \textit{Data Frame} se compone por 3 elementos:
+\begin{enumerate}
+    \item Índice: La etiqueta 
+    \item Columna: Donde cada columna es una serie.
+    \item Headers: La cabezera de la columna. Es decir los nombres que identifican a cada columna.
+\end{enumerate}
+
+Cada columna puede tener un tipo de dato diferente. Vease el ejemplo \ref{ejemplo_data_frame_pandas}
+
+\begin{ejemplo}
+    \label{ejemplo_data_frame_pandas}
+    En un super mercado se venden 3 productos: Bananas, peras y manzanas. Cada producto genera un ingreso mensual aproximado: 100, 60, 70. A cada ingreso mensual se le cobra un impuesto. 
+    
+    En un data frame, la primera columna tiene de cabezera ``productos'' y sus respectivos datos (bananas, peras, manzanas). La segunda columna tiene como cabezera ``ingreso\_mensual'' y sus respectivos datos (100, 60, 70). Por ultimo se encuentra la columna ``impuestos'' con su respectiva tasa impositiva.
+\end{ejemplo}
+
+Notese, como en el ejemplo \ref{ejemplo_data_frame_pandas} la primera columna es \texttt{str}, la segunda es \texttt{int} y la ultima es \texttt{float}.
+
+Para crear un \textit{Data Frame} desde cero, es muy comun que se utilicen diccionarios de \textit{Python}. Donde las ``keys(llaves)'' del diccionario se convierten en los nombres de las columnas (headers).
+
+Para crear un \textit{Data Frame} acudimos al siguiente comando:
+\begin{verbatim}
+    data_frame = pd.DataFrame(conjunto_de_datos)
+\end{verbatim}
+
+Veamos el ejemplo \ref{ejemplo_data_frame_pandas} en código:
+\begin{pycode}{Data Frame}
+import pandas as pd
+
+# Creamos un diccionario:
+mi_mercado = {
+    'productos': ['bananas', 'peras', 'manzanas'], 
+    'ingresos_mensuales': [100,60,70],
+    'impuestos': [0.1,0.05,0.07]
+}
+
+# Creamos el Data Frame
+data_frame = pd.DataFrame(mi_mercado)
+
+print(data_frame) # Nos retorna:
+#   productos  ingresos_mensuales  impuestos
+# 0   bananas                 100       0.10
+# 1     peras                  60       0.05
+# 2  manzanas                  70       0.07
+
+\end{pycode}
+
+\begin{nota}
+    Observe que \textit{Pandas} agrega automáticamente una columna a la izquierda con los números 0,1 y 2. Ese es el índice implícito. Si usted quisiera, podría cambiarlo para que el índice sean los nombres de los productos (con \texttt{index=indice}), eliminando así la columna numérica. 
+\end{nota}
+
+Otra forma de utilizar o crear \textit{Data Frames} es desde una lista de diccionarios, vea el siguiente código:
+\begin{pycode}{Data Frame desde lista de diccionarios}
+import pandas as pd
+
+# Creamos un diccionario:
+mi_mercado = [
+    {'producto':'banana', 'ingresos_mensuales': 100, 'impuestos':0.1}
+    {'producto':'peras', 'ingresos_mensuales': 60, 'impuestos':0.05}
+    {'producto':'manzanas', 'ingresos_mensuales': 70, 'impuestos':0.07}
+]
+
+# Creamos el Data Frame
+data_frame = pd.DataFrame(mi_mercado)
+
+print(data_frame) # Nos retorna:
+#   productos  ingresos_mensuales  impuestos
+# 0   bananas                 100       0.10
+# 1     peras                  60       0.05
+# 2  manzanas                  70       0.07    
+\end{pycode}
+
+Si usted quisiera convertir un array de \textit{NumPy} en un \textit{Data Frame} le dejo el siguiente ejemplo:
+\begin{pycode}{Data Frame desde array}
+import pandas as pd
+import numpy as np 
+
+# Creamos el array
+array = np.array([[10,20,30],[40,50,60]])
+
+# Lo convertimos en dataframe
+data_frame = pd.DataFrame(array)
+
+print(data_frame) # Nos retorna: 
+#     0   1   2
+# 0  10  20  30
+# 1  40  50  60
+
+# Le damos headers:
+data_frame = pd.DataFrame(array, columns = ['A','B','C'])
+
+print(data_frame) # Ahora nos retorna: 
+#     A   B   C
+# 0  10  20  30
+# 1  40  50  60
+\end{pycode}

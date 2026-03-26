@@ -1,0 +1,266 @@
+\section{Operaciones básicas e indexación}
+
+\subsection{Series}
+
+\subsubsection{Indexación}
+
+Si usted estuviera interesado en buscar un dato específico de \textit{Pandas} puede utilizar la indexación o slicing de la misma manera que se utilizaba en \textit{NumPy}.
+
+Cuando presentamos el tema de \textit{Series}, utilizamos la indexación, indexar consta de la siguiente estructura:
+\begin{verbatim}
+    serie[índice]
+\end{verbatim}
+En código:
+\begin{pycode}{Indexación de series en pandas}
+import pandas as pd
+
+# Definimos las variables
+indice = ['Enero', 'Febrero', 'Marzo']
+datos = [200, 100, 135]
+
+# Creamos la serie de Pandas
+ingresos_mensuales = pd.Series(datos, index=indice) 
+
+# Indexamos
+print('Ingresos del mes de marzo', ingresos_mensuales['Marzo']) # Retorna: 'Ingresos del mes de marzo 135'
+# ingresos_mensuales es la serie, [] la indexacion y 'Marzo' el indice
+\end{pycode}
+
+\paragraph{Slicing}
+Así es, al igual que en \textit{NumPy} el \textit{Slicing} tambien existe en pandas, para realizar slicing, se realiza el mismo proceso que en \textit{NumPy}, 
+\begin{verbatim}
+    Serie[Inicio:Fin:paso]
+\end{verbatim}
+
+\begin{nota}
+    \textit{¡Alerta de diferencia!:} En \textit{NumPy} y en las listas de \textit{Python}, el límite superior (\textit{Fin}) nunca se incluye. Pero en \textit{Pandas}, cuando hacés \textit{slicing} con \textbf{etiquetas} de texto, el límite final SÍ se incluye.
+\end{nota}
+
+Veamoslo en un ejemplo de código:
+\begin{pycode}{Slicing en series}
+import pandas as pd
+
+# Definimos las variables
+indice = ['Enero', 'Febrero', 'Marzo']
+datos = [200, 100, 135]
+
+# Creamos la serie de Pandas
+ingresos_mensuales = pd.Series(datos, index=indice) 
+
+# Realizamos Slicing
+print(ingresos_mensuales['Enero':'Febrero']) # Retorna:
+# Enero      200
+# Febrero    100
+# dtype: int64
+\end{pycode}
+
+\subsubsection{Operaciones matemáticas básicas}
+
+En una serie puede realizar operaciones matemáticas básicas de:
+\begin{itemize}
+    \item Aritméticas: suma, multiplicación\dots
+    \item Comparaciones: de mayor o menor (retorna True o False)
+    \item Estadísticas: de media, valor maximo, etc.
+\end{itemize}
+
+Veamos algun ejemplo básico
+\begin{pycode}{Operaciones matemáticas}
+import pandas as pd
+
+# Definimos las variables
+indice = ['Enero', 'Febrero', 'Marzo']
+datos = [200, 100, 135]
+
+# Creamos la serie de Pandas
+ingresos_mensuales = pd.Series(datos, index=indice) 
+
+# Operación aritmética
+print(ingresos_mensuales['Enero'] + 10) # Retorna: 210
+
+# Operación de comparación
+print(ingresos_mensuales > 120) # Retorna:
+# Enero       True
+# Febrero    False
+# Marzo       True
+
+# Operación Estadística
+print(ingresos_mensuales.mean()) # Retorna: 145
+\end{pycode}
+
+\begin{nota}
+    Si usted decide no aclarar el indice en la operación, la operación se va a aplicar a todo el data frame. Esto se debe a que \textit{Pandas} utiliza las operaciones vectorizadas de \textit{NumPy}
+\end{nota}
+
+
+
+
+\subsection{Data Frames}
+
+\subsubsection{Indexación}
+
+Hay diferentes formas de indexar un \textit{Data Frame}. 
+
+\paragraph{Selección Directa (Columnas)}
+
+Es la forma más rápida de ``recortar'' una tabla verticalmente.
+\begin{itemize}
+\item \textit{Un solo corchete} \texttt{df['header']}: Extrae una Serie. Es útil cuando solo quieres operar sobre una variable (ej: calcular el promedio de impuestos).
+\item \textit{Doble corchete} \texttt{df[['h1', 'h2']]}: Extrae un nuevo DataFrame. Piénselo como "pedir una lista de columnas". 
+\end{itemize}
+
+\paragraph{Indexación por \texttt{.loc} y \texttt{.iloc}}
+
+El atributo \texttt{.loc} funciona con los nombres de las cabezeras (headers) de las columnas y en las etiquetas de las filas (indices).
+
+Si usted quisiera realizar un slicing con \texttt{.loc}, el límite final si se incluye. Es decir si usted realiza ``\texttt{df.loc['A':'C']}'' obtendria la serie A, B y C. 
+
+Su estructura consiste en:
+\begin{verbatim}
+    dataframe.loc[NombreFila, NombreColumna]
+\end{verbatim}
+
+El atributo \texttt{.iloc} es posicional, es decir que no ve las etiquetas, sino el orden en que los datos fueron cargados en la memoria. A diferencia de \texttt{.loc} este NO incluye el límite final. 
+
+\textit{.iloc} permite utilizar numeros negativos, por ejemplo utilizar \texttt{df.iloc[-5:]} retornaria las ultimas cinco filas.
+
+Su estructura consiste en:
+\begin{verbatim}
+    dataframe.loc[NúmeroFila, NúmeroColumna]
+\end{verbatim}
+
+
+\paragraph{.head y .tail}
+Si usted quisera ver las primeras filas, puede utilizar \texttt{.head()}. Dentro del parentesis puede colocar hasta donde que fila quiere que se muestre. (por defecto es 5). \texttt{.tail()} funciona igual que \texttt{.head()} pero retorna las ultimas filas.
+
+Veamos todas las formas de indexar y de realizar slicing de un data frame en código:
+\begin{pycode}{Indexación y Slicing de un data frame}
+import pandas as pd
+
+# Creamos un diccionario:
+mi_mercado = {
+    'productos': ['bananas', 'peras', 'manzanas'], 
+    'ingresos_mensuales': [100,60,70],
+    'impuestos': [0.1,0.05,0.07]
+}
+
+# Creamos el Data Frame
+data_frame = pd.DataFrame(mi_mercado)
+
+
+print(data_frame['productos']) # Retorna
+# 0     bananas
+# 1       peras
+# 2    manzanas
+print()
+
+print(data_frame[['productos', 'impuestos']]) # Retorna
+#   productos  impuestos
+# 0   bananas       0.10
+# 1     peras       0.05
+# 2  manzanas       0.07
+print()
+
+print(data_frame.loc[0:2]) # Retorna
+#   productos  ingresos_mensuales  impuestos
+# 0   bananas                 100       0.10
+# 1     peras                  60       0.05
+# 2  manzanas                  70       0.07
+
+# Note que incluye el indice 2
+print()
+
+print(data_frame.iloc[0:2]) # Retorna
+#   productos  ingresos_mensuales  impuestos
+# 0   bananas                 100       0.10
+# 1     peras                  60       0.05
+print()
+
+print(data_frame.head(1)) # Retorna
+#   productos  ingresos_mensuales  impuestos
+# 0   bananas                 100        0.1
+\end{pycode}
+
+\begin{ejemplo}
+    Si usted quisiera indexar por filas y columnas podria utilizar: \texttt{data\_frame['productos'].loc[1]} que le retornaria 'peras'
+\end{ejemplo}
+
+
+
+\subsubsection{Operaciones Matemáticas}
+
+En \textit{pandas} las operaciones vectorizadas se pueden realizar entre columnas. Hay diferentes tipos de operaciones matemáticas que se puede realizar, pero veamoslas en código.
+
+\paragraph{Operaciones aritméticas}
+\begin{pycode}{Operaciones aritméticas en data frames}
+import pandas as pd
+
+# Creamos el data frame
+df = pd.DataFrame({
+'Producto': ['Soja', 'Maíz', 'Trigo'],
+'Toneladas': [100, 200, 150],
+'Precio_Unitario': [400, 250, 300]
+})
+
+# Multiplicación entre columnas
+df['Ingreso_Bruto'] = df['Toneladas'] * df['Precio_Unitario'] # Nos retorna el Ingreso Total
+
+# Operación con un escalar (Aplicar un impuesto del 10%)
+df['Precio_con_IVA'] = df['Precio_Unitario'] * 1.10
+
+# Suma y Resta (Calcular stock neto tras una perdida de 5 tons)
+df['Stock_Neto'] = df['Toneladas'] - 5
+\end{pycode}
+
+\paragraph{Operaciones de comparación}
+\begin{pycode}{Comparacion en Data Frames}
+import pandas as pd
+
+# Creamos el data frame
+df = pd.DataFrame({
+'Producto': ['Soja', 'Maíz', 'Trigo'],
+'Toneladas': [100, 200, 150],
+'Precio_Unitario': [400, 250, 300]
+})
+
+# Multiplicación entre columnas
+df['Ingreso_Bruto'] = df['Toneladas'] * df['Precio_Unitario'] # Nos retorna el Ingreso Total
+
+# Operación comparativa para ver ingresos mayores de 40000
+mascara = df['Ingreso_Bruto'] > 40000 # Retorna: [False, True, True]
+
+#Usar la comparacion para filtrar el DataFrame original
+df_vip = df[df['Ingreso_Bruto'] > 40000] # Retorna
+#   Producto  Toneladas  Precio_Unitario  Ingreso_Bruto
+# 1     Maíz        200              250          50000
+# 2    Trigo        150              300          45000
+\end{pycode}
+
+
+\paragraph{Operaciones estadísticas}
+
+\begin{pycode}{Estadistica en Pandas}
+import pandas as pd
+
+# Creamos el data frame
+df = pd.DataFrame({
+'Producto': ['Soja', 'Maíz', 'Trigo'],
+'Toneladas': [100, 200, 150],
+'Precio_Unitario': [400, 250, 300]
+})
+
+# Operación suma
+total_tons = df['Toneladas'].sum()
+
+# Operación para obtener la media
+promedio_precio = df['Precio_Unitario'].mean()
+
+# Devuelve todas las estadísticas
+resumen = df.describe()
+\end{pycode}
+
+
+\begin{nota}
+    \textit{¡Atención!}: Aunque puede usar ``+'' o ``*'', Pandas tiene métodos como \texttt{.add()} o \texttt{.mul().}. Esto porque permiten manejar valores faltantes \texttt{(NaN)}. 
+    
+    Si una celda está vacía, el operador ``+'' dará error o NaN, pero con \texttt{.add(fill\_value=0)} puede decirle a \textit{Pandas} que trate el vacío como un cero para no romper el cálculo.
+\end{nota}

@@ -1,0 +1,350 @@
+\section{Álgebra lineal con \textit{NumPy}}
+
+Llegamos a la sección donde NumPy se pone el traje de gala y saca la calculadora científica: el Álgebra Lineal. Si usted piensa que esto es solo para matemáticos con mucho tiempo libre, se equivoca; esta es la base de cómo una IA reconoce su cara en una foto o cómo Google decide qué mostrarle primero.
+
+En \textit{NumPy}, casi todo lo que sea "pesado" matemáticamente vive dentro del submódulo \texttt{np.linalg}.
+
+\subsection{Suma y producto (\textit{np.sum} y \textit{np.prod})}
+
+Estas funciones básicas lo que hacen es ``colapsar'' su arreglo en un único valor. \texttt{np.sum()} suma todos los elementos de su \texttt{array}, mientras que \textit{np.prod()} multiplica todos los elementos entre sí.
+\begin{pycode}
+import numpy as np
+
+# Creamos un array 
+arr = np.array([1, 2, 3, 4])
+
+# Calculamos la suma de los elementos
+print("Suma:", np.sum(arr)) # 10
+
+# Calculamos el producto de los elementos
+print("Producto:", np.prod(arr)) # 24
+\end{pycode}
+
+\begin{nota}
+    \textit{np.sum()} es extremadamente útil en la indexación booleana. Como los \textit{True} valen 1 y los \textit{False} valen 0, si usted hace \texttt{np.sum(edades >= 18)}, obtendrá automáticamente la cantidad de personas mayores de edad en su arreglo.
+\end{nota}
+
+\subsection{Producto punto (\textit{np.dot()})}
+
+Matemáticamente, el producto punto (o producto escalar) de dos vectores consiste en multiplicar los elementos que ocupan la \textit{misma posición} y luego sumar todos esos resultados.
+
+Para realizar esta operación, hay una regla de etiqueta inquebrantable: ambos vectores deben tener el mismo número de elementos. Si uno tiene tres datos y el otro tiene cuatro, \textit{NumPy} se negará a trabajar.
+
+Si tenemos el vector \(A = \begin{bmatrix}
+    a_1 & a_2
+\end{bmatrix}\) y el vector \(B = \begin{bmatrix}
+    b_1 & b_2
+\end{bmatrix}\) el producto punto de \(A, B\) (\(A\centerdot B\)) es:
+\[
+A \centerdot B = (a_1 \times b_1) + (a_2 \times b_2)
+\]
+
+En analisis de datos esto es un poco más sencillo, ya que consta solo del comando:
+\begin{verbatim}
+    np.dot(vector1, vector2)
+\end{verbatim}
+
+Usted me preguntara ``¿Para qué sirve esto en la vida real?'' Aunque no lo crea, esta es una herramienta tan poderosa que, si aprende a usarla, será su pan de cada día:
+
+En comercio o finanzas sirve para calcular ingreso total. Imagine que tiene tres porductos, y que vendio las siguentes cantidades \([10, 5, 20]\)  aun precio unitario de \([100, 250, 50]\), el producto punto nos da el ingreso total en un solo paso:
+\[
+(10 \times 100) + (50 \times 250) + (20 \times 50) = 1000 + 1250+ 1000 = 3250
+\]
+
+Es muy utilizado en redes sociales. Los sistemas de recomendación crean un vector con sus gustos y un vector con el contenido disponible. Si el producto punto entre sus gustos y el vector son altos, significa que son parecidos, por lo tanto lo va a recomendar
+
+Hay dos formas de calcular el producto punto:
+\begin{enumerate}
+    \item Con \texttt{np.dot(vector1, vector2)}
+    \item Con \texttt{@}, \texttt{vector1 @ vector2}
+\end{enumerate}
+
+Vea el siguiente ejemplo:
+\begin{pycode}{Producto Punto en NumPy}
+import numpy as np
+
+# Creación de vectores 
+cantidades = np.array([10, 5, 20])
+precios = np.array([100, 250, 50])
+
+# Operación 1: Funcion explicita
+total_1 = np.dot(cantidades, precios)
+
+# Operación 2: Operador @ 
+total_2 = cantidades @ precios
+
+print(f"El ingreso total es: {total_2}") # 3250
+\end{pycode}
+
+\subsubsection{Producto de matrices}
+
+El producto punto también funciona en matrices. Para multiplicar dos matrices, no pueden tener cualquier forma. Existe una condición matemática estricta: El número de columnas de la primera matriz debe ser igual al número de filas de la segunda.
+
+A diferencia del producto punto de vectores, en el caso de la matriz no es una multiplicación elemento a elemento. El proceso es: Fila por Columna.
+
+Imagine que usted tiene una matriz de Recetas \((2 platos \times 3 ingredientes)\) y una matriz de Costos \((3 ingredientes \times 1 precio)\).
+\begin{itemize}
+\item Plato A necesita: [2 huevos,1 harina,3 leches].
+\item Plato B necesita: [1 huevo,2 harinas,1 leche].
+\end{itemize}
+El producto punto \texttt{(@)} multiplicará cada fila de la "Receta" por la columna de "Costos" y sumará los resultados. El resultado final será una matriz de 2 platos por 1 costo total.
+
+Véalo en el código, donde la magia (y la matemática) sucede:
+
+\begin{pycode}{Multiplicación de Matrices}
+import numpy as np
+
+# Matriz A: 2 filas, 3 columnas (2x3)
+# [Huevos, Harina, Leche] para dos platos
+recetas = np.array([
+[2, 1, 3],
+[1, 2, 1]
+])
+
+# Matriz B: 3 filas, 1 columna (3x1)
+# Precio de cada ingrediente
+precios = np.array([
+[50],
+[80],
+[120]
+])
+
+# El producto punto matricial (@)
+costo_total = recetas @ precios
+
+print("Costo total por plato:\n", costo_total)
+
+# Resultado:
+# [[540]   <- Costo Plato A
+# [330]]  <- Costo Plato B
+\end{pycode}
+
+\begin{nota}
+    En la multiplicación de matrices, el orden \textit{sí} altera el producto. \texttt{A@B} no es lo mismo que \texttt{B@A}. De hecho, es muy probable que si intenta hacer \texttt{B@A}, las dimensiones ni siquiera coincidan/
+\end{nota}
+
+Además de las ya vistas, hay otra forma de multiplicar matrices, que funciona igual que producto punto, este metdodo es \texttt{np.matmul(A,B)}.
+
+\paragraph{Multiplicación elemento a elemento}
+El producto de \textit{Hadamard} es, básicamente, una multiplicación "espejo". Esta operación toma el número de una posición en la Matriz A y lo multiplica exclusivamente por el número que ocupa la misma posición exacta en la Matriz B.
+
+Para que esto funcione sin que \textit{NumPy} le grite, las matrices deben ser gemelas: deben tener exactamente la misma forma(por ejemplo, ambos de \(2 \times 3\))
+
+Matemáticamente, si el elemento \(A[0,0] \times B[0,0] = C[0,0]\) el segundo elemento de \(C[0,1]\) es \(A[0,1] \times B[0,1]\).
+
+\begin{ejemplo}
+    Suponga que usted tiene una matriz de Precios de tres productos en dos sucursales distintas, y otra matriz con las Cantidades vendidas en esos mismos lugares. Al hacer \texttt{Precios * Cantidades}, usted obtiene una nueva matriz que le indica la \textit{ganancia total por producto y sucursal}.
+\end{ejemplo}
+
+En \textit{NumPy}, esta operación es la que viene "por defecto" cuando usa el asterisco:
+\begin{verbatim}
+    A * B
+\end{verbatim}
+
+Véalo en el código para no confundirlo con el producto punto:
+
+\begin{pycode}{Hadamard vs Producto Punto}
+import numpy as np
+
+# Creación de matriz A y B
+A = np.array([[1, 2], [3, 4]])
+B = np.array([[10, 20], [30, 40]])
+
+# 1. Producto de Hadamard (Elemento a elemento)
+hadamard = A * B # Resultado: [[110, 220], [330, 440]]
+print("Hadamard (*):\n", hadamard)
+
+
+# 2. Producto Punto (Matricial - Filas x Columnas)
+matricial = A @ B # Resultado: [[110 + 230, 120 + 240], ...]
+print("Matricial (@):\n", matricial)
+\end{pycode}
+
+\paragraph{Hadamard vs. Producto Punto}
+
+Para que no se le haga un nudo en las neuronas, imagine que sus matrices son grupos de personas. El producto de Hadamard es como si cada persona se mirara en un espejo; el Producto Punto es como si todo el grupo hiciera una coreografía coordinada.
+
+Use el Producto de Hadamard (*) cuando:
+\begin{itemize}
+\item \textit{Aplicación de Impuestos o Descuentos:} Si tiene una matriz de precios y una matriz de porcentajes de descuento, los multiplica uno a uno para obtener el precio final de cada producto específico.
+\item \textit{Filtros de Imágenes:} En computación visual, si quiere oscurecer una parte de una foto, multiplica los píxeles por una "máscara" de números menores a 1.
+\item \textit{Cambio de Unidades:} Convertir una matriz de metros a centímetros multiplicando todo por un arreglo de 100.
+\end{itemize}
+
+Use el Producto Punto (@) cuando:
+\begin{itemize}
+\item \textit{Cálculo de Ingresos Totales:} Como vimos con el chef, cuando quiere cruzar cantidades vendidas con una lista de precios para obtener un gran total.
+\item \textit{Redes Neuronales (IA):} Las neuronas artificiales reciben señales y las multiplican por "pesos" para decidir si se activan o no. Esta combinación de señales es puro producto punto.
+\item \textit{Sistemas de Recomendación:} Para medir qué tan parecidos son sus gustos con los atributos de una película en Netflix.
+\end{itemize}
+
+
+
+
+\subsection{Matriz identidad e inversa}
+
+\subsubsection{Matriz identidad}
+
+Si el número 1 es el elemento neutro de la aritmética básica \((5\times1=5)\), la Matriz Identidad es el elemento neutro del álgebra de matrices.
+
+Esta tiene mucha utilidad en álgebra lineal, ya que no existe la división de matrices. Para dividir una matriz por otra la multiplicamos por la inversa. La matriz identidad es la pieza clave para calcularla: Una matriz \(A\) multiplicada por su inversa \(A^{-1}\) da como resultado la identidad.
+
+Véalo en el código para refrescar la memoria:
+
+\begin{pycode}{La Matriz Identidad en acción}
+import numpy as np
+
+# Creamos una identidad de 3x3
+I = np.eye(3)
+
+#Creamos una matriz cualquiera
+A = np.array([
+[10, 20, 30],
+[40, 50, 60],
+[70, 80, 90]
+])
+
+# Multiplicación matricial por la identidad (Use @, no *)
+resultado = A @ I
+# El resultado es exactamente A. La identidad no cambió nada.
+print(np.array_equal(A, resultado)) # Resultado: True
+\end{pycode}
+
+
+\subsubsection{Matriz inversa}
+
+Como mencioné anteriormente —y si es que todavía sigue prestando atención—, en el mundo de las matrices no existe el símbolo de dividir. Por lo tanto, si usted necesita realizar el equivalente a una división, lo que realmente necesita es la inversa.
+
+La matriz inversa (\(A^{-1}\)) es aquella que al multiplicarse por la original da como resultado la matriz identidad.
+\[
+A \times A^{-1} = I
+\]
+
+En términos aritméticos simples: si tenemos el número \(5\), su inverso es \(1/5\), porque \(5 \times 1/5 = 1\).
+
+\begin{ejemplo}
+    Imagine que tiene una máquina procesadora de frutas. Usted introduce una banana perfecta (\(X\)). La máquina está programada para pelarla y rebanarla (operación \(A\)), lo que nos entrega un plato de rodajas de banana (\(B\)).
+
+    Si usted se arrepiente del proceso y quiere que esas rodajas vuelvan a ser una banana entera, necesitaría una "máquina inversa" ($A^{-1}$). Si tal maravilla de la ingeniería existiera, al meter las rodajas ($B$), la máquina debería devolverle la banana original ($X$).
+\end{ejemplo}
+
+No se emocione demasiado, no todas las matrices tienen inversa. Si una matriz tiene un determinante igual a 0, se le llama "singular". Es el equivalente matemático a que su banana haya pasado por una licuadora: la información se perdió para siempre y \textit{NumPy} le lanzará un error (\textit{LinAlgError}) si intenta invertirla.
+
+Para encontrar esta "máquina del tiempo" en \textit{NumPy}, utilizamos el submódulo de álgebra lineal:
+\begin{verbatim}
+    np.linalg.inv(matriz) 
+\end{verbatim}
+
+Vea esto en codigo:
+\begin{pycode}{Calcular Matriz Inversa}
+import numpy as np
+
+# Definimos una matriz cuadrada
+A = np.array([[1, 2], [3, 4]])
+
+# Calculamos la inversa
+A_inv = np.linalg.inv(A)
+
+print("Matriz Inversa:\n", A_inv) # Comprobamos que A @ A_inv da la Identidad
+
+identidad = np.round(A @ A_inv) # Usamos round para limpiar decimales minimos de precision
+
+print("\nResultado (Identidad):\n", identidad) # Devuelve la matriz identidad
+\end{pycode}
+
+
+
+
+
+\subsection{Determinantes y autovalores}
+
+\subsubsection{Determinante (\textit{np.linalg.det})}
+
+El determinante es un valor escalar (un solo número) que se calcula únicamente para matrices cuadradas (aquellas con el mismo número de filas que de columnas). Si su matriz es rectangular, ni lo intente: el determinante no existe allí.
+
+Matemáticamente, para una matriz de \(2 \times 2\), el cálculo es un simple cruce de caminos: \textit{multiplicamos} las \textit{diagonales} y las \textit{restamos}.
+\[A = \begin{bmatrix}
+    a & b \\
+    c & d
+\end{bmatrix} = 
+det(A) = (a \times d) - (b \times c)
+\]
+
+¿Para qué sirve este número? La utilidad del determinante va mucho más allá de ser un ejercicio de álgebra, es el guardián de la Inversa:
+\begin{itemize}
+\item \textit{Si el determinante es 0:} La matriz es \textit{singular}. No tiene inversa.
+\item \textbf{Si el determinante es distinto de 0:} La matriz es \textit{regular}. Tiene inversa
+\end{itemize}
+
+Calcular determinantes de matrices de \(4 \times 4\) o más es una verdadera pesadilla que ha hecho llorar a generaciones. Por suerte, \textit{NumPy} lo resuelve con un solo comando:
+\begin{verbatim}
+    np.linalg.det(matriz)
+\end{verbatim}
+
+Veamos esto en acción:
+\begin{pycode}{Calculo del Determinante}
+import numpy as np
+
+# Matriz A (Tiene inversa porque su det no sera 0)
+A = np.array([[4, 2], [1, 3]])
+
+# Calculamos el determinante de A
+det_A = np.linalg.det(A) 
+print(f"Determinante de A: {det_A}") # Calculo manual: (4*3) - (2*1) = 10 
+
+# Matriz B (Lineas dependientes, det sera 0)
+B = np.array([[1, 2], [2, 4]])
+
+# Calculamos el determinante de B
+det_B = np.linalg.det(B)
+print(f"Determinante de B: {det_B}") # Resultado: 0.0 (No tiene inversa)
+\end{pycode}
+
+\subsubsection{Autovalores y autovectores (\textit{np.linalg.eig})}
+
+Imagine que una matriz es una fuerza de la naturaleza que transforma el espacio: puede estirar, rotar o deformar un plano de datos. En medio de ese caos, existen elementos que mantienen la compostura:
+
+\begin{itemize}
+\item \textbf{Autovector:} Es una dirección especial que, tras aplicar la transformación, no cambia su orientación. Puede estirarse o encogerse, pero sigue apuntando exactamente hacia el mismo lugar. Es el "eje" o la columna vertebral de la transformación.
+\item \textbf{Autovalor:} Es el número que nos indica cuánto se estiró o encogió ese autovector. Si el autovalor es 2, el vector duplicó su tamaño. Si es 0.5, se redujo a la mitad.
+\end{itemize}
+
+En \textit{NumPy}, utilizamos el comando \texttt{np.linalg.eig()}, donde \textit{eig} proviene del alemán \textit{eigen}, que significa "propio" o "característico".
+
+Esto en codigo se ve como:
+\begin{pycode}{Calcular Autovalores y Autovectores}
+import numpy as np
+
+# Definimos una matriz de transformacion
+A = np.array([[3, 1], [0, 2]])
+
+# Obtenemos ambos resultados
+valores, vectores = np.linalg.eig(A)
+
+print("Autovalores (Eigenvalues):", valores) # Resultado: [3., 2.] -> Indica los factores de estiramiento
+
+print("\nAutovectores (Eigenvectors):\n", vectores) # Cada columna es un vector que mantiene su direccion
+\end{pycode}
+
+
+Este concepto es bastante dificil, por lo que vamos a ver con manzanitas.
+
+\paragraph{Autovector (la dirección)}
+
+Imagione que pone una manzana en una prensa. La prensa aplasta desde arriba. Si mira la manzana, su piel se estira hacia los lados y se deforma. Sin embargo hay una linea imaginaria (vector) que atraviesa la manzana justo por el centro, de arriba a abajo. Mientras todo lo demas se desparrama, la linea vertical sigue apuntando exactamente en la misma dirección. No se desplazo hacia ningun lado. Es decir, es la dirección que, aunque la matriz (la prensa) la estruje, sigue apuntando hacia la misma dirección. Es el "eje" de la transformación.
+
+\paragraph{Autovalor}
+
+Una vez identificado el autovector, miramos qué le pasó a su tamaño. Si la prensa redujo la altura de la manzana a la mitad, el autovalor es \(0.5\). Si la máquina fuera un estirador y duplicara su altura, el autovalor sería \(2\). Si no cambia el tamaño, el autovalor es \(1\).
+
+\paragraph{Función}
+
+Imagine un camión con 1,000 manzanas y demasiada información: peso, color, diámetro, dulzor, firmeza, etc. (demasiadas dimensiones).
+
+\begin{enumerate}
+\item \textit{Encontrar el Autovector principal:} El algoritmo busca la "dirección" en la que los datos varían más. Quizás descubre que el Peso y el Diámetro se mueven siempre juntos.
+\item \textit{Usar el Autovalor:} Si el autovalor de esa dirección es muy grande, significa que esa combinación (Peso + Diámetro) explica casi todo sobre sus manzanas.
+\end{enumerate}
+
+Resultado: En lugar de analizar 5 variables, ahora solo mira esa "Súper Variable". Ha simplificado su problema (reducción de dimensionalidad) sin perder la esencia de la información.
+

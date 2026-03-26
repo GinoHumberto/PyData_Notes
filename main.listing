@@ -1,13 +1,17 @@
-import numpy as np
+import pandas as pd
 
-a = np.array([1, 1, 1])
-b = np.array([2, 2, 2])
+# Creamos el data frame
+df = pd.DataFrame({
+'Producto': ['Soja', 'Maíz', 'Trigo'],
+'Toneladas': [100, 200, 150],
+'Precio_Unitario': [400, 250, 300]
+})
 
-# Apilamos hacia arriba (Vertical)
-vertical = np.vstack((a, b)) # Resultado: una matriz de 2x3
+# Operación suma
+total_tons = df['Toneladas'].sum()
 
-# Apilamos hacia el lado (Horizontal)
-horizontal = np.hstack((a, b)) # Resultado: un vector largo de 6 elementos
+# Operación para obtener la media
+promedio_precio = df['Precio_Unitario'].mean()
 
-print("Vertical:\n", vertical)
-print("Horizontal:", horizontal)
+# Devuelve todas las estadísticas
+resumen = df.describe()

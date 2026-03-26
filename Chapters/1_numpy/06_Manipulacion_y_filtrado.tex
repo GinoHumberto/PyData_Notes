@@ -1,14 +1,14 @@
-\chapter{Manipulación de arrays y filtrado}
+\section{Manipulación de arrays y filtrado}
 
 Además del \textit{.reshape} visto en la sección de propiedades y la indexación y \textit{slicing}, existen otras formas de manipular y filtrar datos para que confiesen lo que necesitamos.
 
-\section{Manipulación de arrays}
+\subsection{Manipulación de arrays}
 
-\subsection{Concatenación y apilamiento}
+\subsubsection{Concatenación y apilamiento}
 
 Si usted, como todo ser normal, viene del mundo de las hojas de cálculo, la concatenación de \textit{arrays} es simplemente la forma técnica de decir "copiar y pegar rangos de celdas" para armar una tabla más grande.
 
-\subsubsection{Concatenación (\textit{np.concatenate})}
+\paragraph{Concatenación (\textit{np.concatenate})}
 
 Es la forma más general de unir dos o más arreglos. Esta función pega una lista de \textit{arrays} uno tras otro a lo largo de un eje específico.
 
@@ -73,7 +73,7 @@ Imagine estas situaciones cotidianas para un analista:
 En resumen, concatenamos para unificar. Un dato suelto es una anécdota, mil datos son una estadística.
 
 
-\subsubsection{Apilamiento}
+\paragraph{Apilamiento}
 
 Seamos sinceros, estar peleandose con los ejes (\textit{axis=0, axis=1}) es una actividad de alto riesgo para su salud mental. \textit{NumPy} sabe que usted es un ser humano (o algo parecido) y le ofrece ``atajos'' semánticos que hacen lo mnismo que concatenate, pero con nombres que hasta un niño de cinco años entenderia.
 
@@ -109,4 +109,221 @@ print("Horizontal:", horizontal)
 
 
 
-\subsection{División de arrays (\textit{split})}
+\subsubsection{División de arrays (\textit{split})}
+
+Si concatenar y apilar era el arte de construir bloques, \textit{np.split()} es la herramienta para desarmarlos. Esta función corta un \textit{array} en partes exactamente iguales y genera una lista de sub-arreglos más pequeños.
+
+A diferencia del \textit{slicing}, que es como sacar una rebanada de pan, \textit{split} está diseñado para repartir todo el bloque de un solo comando.
+
+\begin{nota}
+    \textit{La regla de la división exacta:} \textit{np.split} es extremadamente estricto. Si usted le pide dividir un \textit{array} en tres partes, el tamaño total del arreglo debe ser divisible por 3. Si la división no da un número entero, \textit{NumPy} entrará en pánico y lanzará un error porque no sabe qué hacer con el elemento que sobra. 
+\end{nota}
+
+\textit{np.split()} tiene el siguiente modo de operar:
+\begin{verbatim}
+    np.split(array, cantidad de divisones)
+\end{verbatim}
+
+Veamos cómo se descuartiza un vector en el código:
+
+\begin{pycode}{Uso de np.split}
+import numpy as np
+
+# Creamos un vector de 6 elementos
+datos = np.array([10, 20, 30, 40, 50, 60])
+
+# Dividir en 3 partes iguales
+pedazos = np.split(datos, 3)
+
+print(pedazos[0]) # [10, 20]
+print(pedazos[1]) # [30, 40]
+print(pedazos[2]) # [50, 60]
+\end{pycode}
+
+En el caso de las matrices, volvemos a encontrarnos con nuestros viejos amigos, los \textit{axis} (ejes), para elegir la dirección del "hachazo":
+\begin{itemize}
+\item \textit{axis=0}: Es un corte horizontal. Divide la matriz a través de sus filas (obtenemos trozos de arriba y abajo).
+\item \textit{axis=1}: Es un corte vertical. Divide la matriz a través de sus columnas (obtenemos trozos de izquierda y derecha).
+\end{itemize}
+
+Vea el siguiente ejemplo:
+\begin{pycode}{Split en Matrices}
+import numpy as np
+
+matriz = np.arange(16).reshape(4, 4)
+
+# Dividir la matriz a la mitad (horizontalmente)
+arriba, abajo = np.split(matriz, 2, axis=0) # Nos quedan dos matrices de 2x4
+
+# Dividir la matriz a la mitad (verticalmente)
+izquierda, derecha = np.split(matriz, 2, axis=1) # Nos quedan dos matrices de 4x2
+
+print(arriba, abajo)
+print()
+print(izquierda, derecha)
+
+\end{pycode}
+
+¿Para qué sirve esto en la vida real? Usted usará \textit{np.split()} principalmente para dos cosas:
+\begin{enumerate}
+\item \textit{Separación de variables:} Si tiene una tabla donde las primeras columnas son características (como altura y peso) y la última es el precio, puede usar \textit{split} para separarlas y procesarlas por rutas distintas.
+\item \textit{Procesamiento por lotes (\textit{batches}):} Si tiene un millón de registros y su computadora empieza a echar humo, puede dividirlos en 10 partes iguales y procesar una por vez para darle un respiro al procesador.
+\end{enumerate}
+
+\begin{nota}
+Para facilitarnos la vida una vez más, \textit{NumPy} también incluyó las funciones \textit{np.vsplit} (vertical) y \textit{np.hsplit} (horizontal), que funcionan exactamente igual que los atajos de apilamiento, evitándole tener que escribir el \textit{axis} manualmente.
+\end{nota}
+
+
+
+\subsubsection{Transposición y permutación de ejes}
+
+\paragraph{Transposición}
+
+Transponer una matriz consiste en el arte de intercambiar sus filas por sus columnas. Si usted tenía una fila, ahora tiene una columna; si tenía una columna, ahora es una fila. Es, básicamente, rotar su tabla de datos 90 grados y darle la vuelta.
+
+Matemáticamente, si un elemento estaba en la posición \(i,j\) donde \(i\) es una fila y \(j\) es una columna, la matriz transpuesta ahora sera \(j,i\), Esto se visualiza de la siguiente manera:
+\[
+A = \begin{bmatrix}
+    1 & 2 \\
+    3 & 4 \\
+    5 & 6
+\end{bmatrix}
+\quad
+\text{Transpuesta}
+\quad
+A^T= \begin{bmatrix}
+    1 & 3 & 5 \\
+    2 & 4 & 6
+\end{bmatrix}
+\]
+
+¿De qué sirve transponer una matriz en la vida real?
+\begin{itemize}
+\item \textit{Reorientar datos:} Si sus sensores registraron datos en columnas pero su algoritmo los espera en filas, la transposición lo arregla en un milisegundo.
+\item \textit{Álgebra Lineal:} Es fundamental para cumplir las condiciones de la multiplicación de matrices (que veremos si el destino lo permite).
+\item \textit{Correlaciones:} Permite comparar cómo se relacionan diferentes variables entre sí al alinear correctamente los ejes.
+\end{itemize}
+
+Para transponer, \textit{NumPy} ofrece la función \texttt{np.transpose(array)}, pero como usted es un programador que valora su tiempo, usará la propiedad \texttt{.T}. Es corta, es elegante y le ahorra preciosos segundos de vida que puede gastar en ver videos de gatitos o tomar café.
+
+Véalo en el código:
+\begin{pycode}{Transposicion con .T}
+import numpy as np
+
+# Creamos una matriz de 2 filas y 3 columnas
+matriz = np.array([
+[1, 2, 3],
+[4, 5, 6]
+])
+
+print(f"Forma original: {matriz.shape}") # (2, 3)
+
+# Transponemos la matriz
+matriz_t = matriz.T
+
+print(matriz_t)
+"""
+Resultado:
+[[1, 4],
+[2, 5],
+[3, 6]]
+"""
+print(f"Nueva forma: {matriz_t.shape}") # (3, 2)
+\end{pycode}
+
+\begin{nota}
+    Si intentas transponer un vector de una sola dimensión (un array simple como \texttt{[1, 2, 3]}), verás que \textit{no pasa nada}. Esto es porque NumPy considera que un vector 1D no tiene filas ni columnas que intercambiar. Para "parar" un vector, primero deberías convertirlo en una matriz de \(1 \times n\) usando \texttt{.reshape()}.
+\end{nota}
+
+
+
+\paragraph{Permutación de ejes}
+
+Si la transposición (\texttt{.T}) es como dar vuelta toda la media, \texttt{np.swapaxes()} es un movimiento mucho más preciso: intercambia exactamente dos ejes entre sí, dejando todos los demás intactos en su posición original. Su estructura consiste en:
+\begin{verbatim}
+    np.swapaxes(array, eje_1, eje_2)
+\end{verbatim}
+
+
+Esta función es la favorita de quienes trabajan con datos multidimensionales, como imágenes o tensores complejos, donde a veces solo necesita rotar dos dimensiones específicas (por ejemplo, intercambiar el ancho por el alto) sin alterar la profundidad o el número de canales de color.
+
+En una matriz simple de dos dimensiones, usar \textit{swapaxes} es exactamente lo mismo que usar \textit{.T}. La verdadera diferencia —y donde usted agradecerá su existencia— aparece cuando trabajamos con tres o más dimensiones.
+
+Vea este ejemplo:
+
+\begin{pycode}{transpose vs swapaxes}
+import numpy as np
+
+# Creamos un "cubo" de datos (2 matrices de 3x4)
+cubo = np.zeros((2, 3, 4)) # np.shape: (0: profundidad, 1: filas, 2: columnas)
+
+# 1. Usando transpose para invertir TODO
+cubo_t = np.transpose(cubo) # La forma pasará a ser (4, 3, 2)
+
+# 2. Usando swapaxes para cambiar solo FILAS por COLUMNAS
+cubo_swapped = np.swapaxes(cubo, 1, 2) # La forma pasará a ser (2, 4, 3)
+# Solo tocamos el eje 1 y el eje 2. La profundidad (eje 0) queda igual.
+
+print(f"Original: {cubo.shape}")
+print(f"Transpose: {cubo_t.shape}")
+print(f"Swapaxes: {cubo_swapped.shape}")
+\end{pycode}
+
+Como puede observar, \texttt{swapaxes} es mucho más respetuoso con la estructura que usted no quiere tocar. Mientras que \texttt{transpose} lo pone todo patas arriba.
+
+
+
+
+\subsection{filtrado de datos}
+
+Además de la indexación y la indexación booleana existe el filtrado condicional con \texttt{np.where()}. Esta función es, en esencia, un bloque \textit{if-else} convertido en un superatleta vectorizado.
+
+Su estructura consiste en:
+\begin{verbatim}
+    np.where(condición, valor_verdadero, valor_falso).
+\end{verbatim}
+
+Suponga que quiere evaluar una lista de alumnos para separar el trigo de la paja (aprobados de desaprobados). En lugar de ir uno por uno preguntando la nota, usted le da la orden a NumPy y él se encarga del resto:
+\begin{pycode}{Uso basico de np.where}
+import numpy as np
+
+notas = np.array([3, 8, 5, 2, 10])
+
+# Si la nota es >= 4, ponemos 1 (Aprobado), sino 0 (Desaprobado)
+resultados = np.where(notas >= 4, 1, 0)
+
+print(resultados) #Resultado: [0, 1, 1, 0, 1]
+\end{pycode}
+
+Existen dos razones fundamentales por las que usted, si aprecia su tiempo, usará \texttt{np.where} en lugar de un \texttt{if} tradicional de \textit{Python}:
+\begin{itemize}
+\item \textit{Vectorización (Velocidad):} Como mencionamos antes, NumPy procesa todos los elementos al mismo tiempo. Si tuviera un millón de filas, \textit{np.where} tardaría milisegundos, mientras que un bucle \textit{for} con un \textit{if} le daría tiempo de ir a prepararse un café (y quizás hasta de cultivarlo).
+\item \textit{Limpieza de Datos:} Es la herramienta ideal para corregir errores absurdos en sus \textit{datasets}. Por ejemplo: "Si el precio es negativo, póngale 0; de lo contrario, deje el precio original".
+\end{itemize}
+
+Vea cómo limpiar su honor (y sus datos) con un solo comando:
+\begin{pycode}{Limpieza de datos con np.where}
+
+precios = np.array([100, -50, 200, -10])
+
+# Si el precio es menor a 0, lo corrijo a 0. Si no, mantengo el precio original.
+precios_limpios = np.where(precios < 0, 0, precios)
+
+print(precios_limpios) # Resultado: [100, 0, 200, 0]
+\end{pycode}
+
+Si usted le pasa a \texttt{np.where} solo la condición (sin los valores de verdadero/falso), la función cambia de personalidad: en lugar de devolver valores transformados, le devolverá los índices exactos donde se cumple lo que usted pidió.
+
+\begin{pycode}{np.where para encontrar indices}
+import numpy as np
+
+edades = np.array([10, 25, 18, 40])
+
+indices = np.where(edades >= 18) # Resultado: (array([1, 2, 3]),)
+print(indices)
+\end{pycode}
+
+\begin{nota}
+Fíjese que el resultado es una tupla que contiene un \textit{array}. Esto parece innecesariamente complejo, pero es así porque está preparado para matrices de muchas dimensiones donde usted recibiría una lista de índices por cada eje. Para nosotros, por ahora, basta con saber que ahí están nuestras coordenadas.
+\end{nota}

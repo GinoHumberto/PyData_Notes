@@ -1,0 +1,106 @@
+\section{Estadística}
+
+\textit{NumPy} incluye funciones estadísticas extremadamente rápidas, ya que operan sobre \textit{arrays} completos o sobre subconjuntos definidos por ejes, lo que permite analizar millones de datos sin escribir un solo bucle manual.
+
+\subsection{Mínimo y máximo (\textit{np.min} y \textit{np.max})}
+
+Para su felicidad y la mía, estas funciones no requieren un doctorado para entenderlas: simplemente nos entregan el valor más \textit{bajo} y el más \textit{alto} de un conjunto de datos.
+
+\begin{pycode}{Mínimo y Máximo}
+import numpy as np
+
+# Creamos el array
+arr = np.array([5, 12, 7, 20, 15])
+
+print("Mínimo:", np.min(arr)) # 5
+print("Máximo:", np.max(arr)) # 20
+
+
+# También existen los métodos .min() y .max() que funcionan igual:
+print("Mínimo (método):", arr.min())
+print("Máximo (método):", arr.max())
+\end{pycode}
+
+
+
+\subsection{Media y mediana (\textit{np.mean} y \textit{np.median})}
+
+Aquí es donde la estadística empieza a ponerse interesante.
+\begin{itemize}
+\item \textit{Media (Promedio):} Es la suma de todos los valores dividida por la cantidad de elementos. Es útil cuando sus datos son "estables" y no tienen locuras en los extremos.
+\item \textit{Mediana:} Es el valor que queda justo en el centro cuando ordena los datos de menor a mayor. Es el mejor amigo del analista cuando hay valores atípicos (\textit{outliers}) que intentan mentirle.
+\end{itemize}
+\begin{ejemplo}
+        Imagine que cinco amigos ganan 1.000 y el sexto es un millonario que gana 1.000.000. La media dirá que el promedio de sueldos es altísimo (una mentira), mientras que la mediana dirá que el sueldo central es 1.000 (la realidad de la mayoría).
+\end{ejemplo}
+
+Vea un ejemplo:
+\begin{pycode}{Calculo de media y mediana}
+import numpy as np
+
+# Creamos el array
+arr = np.array([1, 2, 3, 4, 5, 100])
+
+# Dejamos que NumPy calcule la media
+print("Media:", np.mean(arr)) # 19.166...
+
+# Calculo de la mediana
+print("Mediana:", np.median(arr)) # 3.5
+\end{pycode}
+
+\subsection{Desviación estándar (\textit{np.std})}
+
+La desviación estándar mide qué tan "desparramados" están los datos respecto al promedio. Es como cuando usted dice que llegará a las 8:00, "más o menos 10 minutos". Esos 10 minutos son su desviación.
+
+Basicamente nos dice qué tan "lejos" están los datos respecto al promedio.
+\begin{itemize}
+\item \textit{Baja desviación:} Los datos son estables y predecibles (están cerca de la media).
+\item \textit{Alta desviación:} Hay mucha variabilidad o riesgo (los datos están por todos lados).
+\end{itemize}
+
+Vea un ejemplo:
+\begin{pycode}{Desviación estandar}
+import numpy as np
+
+# Creamos el array
+arr = np.array([10, 12, 14, 16, 18])
+
+# Obtenemos la media 
+print("Media:", np.mean(arr)) # 14
+
+# Vemos la dispersión de los datos
+print("Desviación estándar:", np.std(arr)) # 2.828...
+\end{pycode}
+
+
+
+\subsection{El dominio de los ejes (\textit{axis})}
+
+El eje o axis es la dirección en la que \textit{NumPy} realiza la operación.
+
+\begin{itemize}
+\item \textit{axis=0 (Hacia abajo):} La operación atraviesa las filas. El resultado es un resumen de cada columna.
+\item \textit{axis=1 (Hacia los lados):} La operación atraviesa las columnas. El resultado es un resumen de cada fila.
+\end{itemize}
+
+Matematicamente una matriz se forma por \textit{filas} y \textit{columnas} (\(i,j\)). El indice 0 corresponde a las filas, el indice 1 corresponde a las columnas.
+
+Vea un ejemplode la utilización de \texttt{axis} para obtener la media y la mediana.
+\begin{pycode}{Utilziación de axis}
+import numpy as np
+
+# Filas: Estudiantes | Columnas: Materias 
+notas = np.array([
+    [8, 10], # Estudiante A
+    [7, 9],  # Estudiante B
+    [9, 6]   # Estudiante C
+])
+
+# 1. ¿Cuál es el promedio de cada MATERIA? (Bajar por las filas)
+promedio_materias = np.mean(notas, axis=0) 
+# Resultado: [8.0, 8.33] -> [Promedio Mates, Promedio Arte]
+
+# 2. ¿Cuál es el promedio de cada ESTUDIANTE? (Moverse por las columnas)
+promedio_estudiantes = np.mean(notas, axis=1)
+# Resultado: [9.0, 8.0, 7.5] -> [Promedio A, Promedio B, Promedio C]
+\end{pycode}
