@@ -1,2 +1,349 @@
 \section{Lectura y escritura de datos}
 
+\textit{Pandas} permite importar y exportar datos en diferentes formatos.
+
+\subsection{Archivos .CSV, .TSV y .txt}
+
+\subsubsection{CSV}
+CSV significa Comma Separated Values (Valores Separados por Comas). Es un archivo de texto plano que organiza la información en forma de tabla, pero sin colores, fórmulas ni celdas bonitas. 
+
+La estructura de un archivo \texttt{.csv} consiste de:
+\begin{itemize}
+    \item Filas: cada linea del archivo de texto es una fila de la tabla.
+    \item Columnas: cada dato dentro de esa line se separa por un signo de puntuación (una coma).
+    \item Encabezado: La primera linea o primera fila del archivo contiene el nombre de las columnas (generalmente).
+\end{itemize}
+
+\paragraph{Exportar a \texttt{.csv} (\textit{df.to\_csv})}
+
+Si usted quiere optimizar espacio sin duda un archivo de texto plano es una buena elección, luego de realizar su análisis con \textit{NumPy} y \textit{Pandas}, puede realizar la conversión a un archivo \texttt{.csv}.
+
+Vease con un ejemplo:
+\begin{pycode}{Guardar a CSV}
+import pandas as pd
+
+# df es su tabla de datos
+df.to_csv('reporte_final.csv', index=False, sep=',', encoding='utf-8')
+
+# El primer dato colocado entre comillas es el nombre del archivo
+# index=False Evita que Pandas el índice (0, 1, 2...) que crea automáticamente.
+# El sep es el separador, es lo que los va a diferenciar
+# utf-8 nos asegura que soporta letras como ñ y acentos
+\end{pycode}
+
+\paragraph{Importar de \texttt{.csv}(\textit{pd.read\_csv})}
+
+Una forma muy común de empezar un análisis es ya teniendo información de algunos datos, estos pueden venir en formato \texttt{.csv}
+
+Veamos en código:
+\begin{pycode}{Cargar desde CSV}
+import pandas as pd
+
+# Cargar el archivo
+df = pd.read_csv('datos_xd.csv', sep=',')
+
+# Corroboramos si se cargo
+print(df.head())
+\end{pycode}
+
+
+\subsubsection{Archivos TSV o \texttt{.tsv}}
+
+Un archivo TSV o tab separated value (Valores separados por tabulaciones). Un archivo \texttt{.tsv} funciona igual que el \texttt{.csv}, su diferencia esta en el separador.
+
+En ves de que \textit{sep = ','}, el separador debe ser \textit{sep = '\t'} donde \t significa tabulación.
+
+En código:
+\begin{pycode}{.tsv}
+import pandas as pd
+
+df_tsv = pd.read_csv("datos.tsv", sep="\t")
+
+print(df_tsv.head())
+\end{pycode} 
+
+\subsubsection{Archivos txt o \texttt{.txt}}
+Al igual que los anteriores el archivo \texttt{.txt} utiliza la misma funcion. La diferencia radica en que en este caso el separador es \textit{sep = ';'}
+
+En código:
+\begin{pycode}{Archivo .txt}
+import pandas as pd
+
+df_txt = pd.read_csv("datos.txt", sep=";")
+
+print(df_txt.head())    
+\end{pycode}
+
+
+\subsubsection{Problemas comunes}
+\begin{itemize}
+    \item Si los acentos funcionan de forma dudosa agregar: \textit{encoding='latin1' o encoding='utf-8'}.
+    \item Si las columnas estan corridas probar con: \textit{sep=';' o sep='\t'}
+    \item En el caso que el país de los datos utilice ``,'' en ves de ``.'' para decimales utilizar: \textit{decimal=','} para que Python entienda que 3,14 es un número.
+    \item En el caso que las fechas las tome como texto utilizar: \textit{parse\_dates=['columna\_fecha']}.
+\end{itemize}
+
+
+
+\subsection{Archivos de Exel o \texttt{.xlsx , .xls}}
+
+Si usted trabaja o se desempeña en entornos académicos, exel actualmente sigue siendo el estandar. 
+
+Para poder manejar los datos de un archivo \texttt{.xlsx} o \texttt{xls}, va a necesitar importar una libreria que es la intepretadora de estos archivos. Por lo tanto va a necesitar instalar por medio de \textit{pip}, 
+\begin{verbatim}
+    openpyxl
+\end{verbatim}
+
+Otra opción es instalar \texttt{xlrd}
+
+\subsubsection{Leer un archivo de exel}
+
+Recordemos que un archivo de exel puede tener multiples hojas. Por defecto \textit{Pandas} nos trae la primera, pero podemos especificar si queremos otra.
+
+Vease en código:
+\begin{pycode}{Leer un archivo exel}
+import pandas as pd
+
+# Sin especificar la hoja (devuelve la primera)
+df = pd.read_excel('exelxd.xlsx')
+
+# Especificando la hoja
+df_segunda_hoja = pd.read_excel('exelxd.xlsx', sheet_name='segunda_hoja')
+
+# Para saltar primeras filas
+df_limpio = pd.read_excel('exelxd.xlsx', skiprows=3) # Salta 3 filas   
+\end{pycode}
+
+
+\subsubsection{Escribir un archivo de exel}
+
+Si su jefe le pide ver los datos finales, seguramente no vaya a ejecutar un comando en su consola. Por lo tanto le dejo como pasar un \textit{Data Frame} a exel.
+
+\begin{pycode}{Guardar a Excel}
+
+# Guardar el DataFrame en un archivo 
+df.to_excel('reporte_final_gino.xlsx', index=False, sheet_name='Resultados')
+
+# index=False evita que guarde los índices de las filas
+# sheet_name='nombre que queramos' 
+
+\end{pycode}
+
+
+
+
+\subsection{Archivos JSON o \texttt{.json}}
+
+El formato JSON (JavaScript Object Notation) es el estándar absoluto para el intercambio de datos en la web de aplicaciones y servidores.
+
+Un archivo \texttt{.json} organiza la información usando llaves { } y corchetes [ ]. Este se basa en pares de \texttt{Clave: Valor}. Es prácticamente idéntico a un Diccionario de Python.
+
+\subsubsection{Como importar un \texttt{.json}}
+
+Para leer un archivo \texttt{.json} utilizamos \texttt{pd.read\_json()}. Vease en código:
+
+\begin{pycode}{Importar un JSON}
+import pandas as pd
+
+# Cargar el archivo
+df_web = pd.read_json('datos_web.json')
+\end{pycode}
+
+\subsubsection{Exportar un \texttt{.json}}
+
+Para convertir un \textit{Data Frame} en un \texttt{.json} se utiliza \texttt{.to\_json()}. Veamoslo en código:
+
+\begin{pycode}{Guardar a JSON}
+import pandas as pd
+
+df.to_json('datos_xd.json', orient='records', indent=4)
+
+# orient='records' guarda cada fila del data frame como un objeto individial (es lo que esperan la mayoria de aplicaciones web)
+
+# indent=4: hace el archivo leíble para humanos, le agrega espacios y saltos de linea.(Esto para que el texto no sea una sola línea infinita)
+
+\end{pycode}
+
+
+
+\subsubsection{Los datos anidados}
+
+Aunque tanto usted como yo deseariamos que este sea el fin de los \texttt{.json}, hay algo más.
+
+Los datos anidados son aquellos en los que la información no viene en una tabla plana, sino como "mamushkas" (una carpeta dentro de otra). Que es lo común en proyectos grandes.
+
+\textit{Pandas} diseña una herramienta específicamente para ``aplanar'' esa estructura y convertirla en una tabla de filas y columnas que puedas analizar. Esta herramienta es:
+\begin{verbatim}
+    pd.json_normalize()
+\end{verbatim}
+
+Veamos un ejemplo de datos anidados en código:
+\begin{pycode}{Ejemplo de datos anidados}
+[
+    {
+        "id_envio": 101,
+        "cliente": {"nombre": "Gino", "pais": "Argentina"},
+        "productos": ["Vino", "Aceite"]
+    }
+]
+
+# Si intentaramos cargar e
+
+\end{pycode}
+
+Si intentaramos cargar esto normalmente, la columna 'cliente' contendria solo un dicionario entero \texttt{{'nombre': 'Gino', 'pais': 'Argentina'}} en lugar de separar el nombre del país.
+
+\texttt{pd.json\_normalize()} toma el diccionario y "estira" las claves internas para crear nuevas columnas, usando usualmente un punto ``.'' para separar los niveles.
+
+Veamos como se aplica en código:
+
+\begin{pycode}{Uso de json normalize}
+import pandas as pd
+
+# Datos anidados (lista de diccionarios)
+data = [
+{
+"id": 1,
+"info": {"nombre": "Sofia", "Hola": "Mundo"},
+"programa": "Python"
+},
+{
+"id": 2,
+"info": {"nombre": "Manuel", "Hola": "Pandas"},
+"programa": "Python2"
+}
+]
+
+# Aplanamos su estructura
+df = pd.json_normalize(data)
+
+print(df)
+"""
+Resultado:
+id   programa  info.nombre  info.Hola
+0   1 Python         Sofia      Mundo
+1   2 Python2       Manuel     Pandas
+"""
+\end{pycode}
+
+
+
+
+\subsection{Conexión con SQLite}
+
+SQLite es una biblioteca de software que implementa un motor de base de datos SQL completo, pero con una diferencia clave: Todo vive en un único archivo (como tu mibase.db).
+
+\textit{Pandas} se integra nativamente con SQL a través de una ``conexión''. Esto permite tratar a una tabla de base de datos como si fuera un DataFrame.
+
+\subsubsection{Escribir en SQLite}
+
+Para pasar un \textit{Data Frame} a una base de datos se utiliza el comando:
+\begin{verbatim}
+    to_sql()
+\end{verbatim}
+
+En código
+\begin{pycode}{Escritura en SQLite}
+import sqlite3
+import pandas as pd
+
+conexion = sqlite3.connect("mibase.db")
+
+# Crear un DataFrame con algunos datos de prueba
+data = {
+    "nombre": ["Juan", "María", "Pedro", "Ana"],
+    "edad": [25, 30, 35, 28],
+    "ciudad": ["Madrid", "Barcelona", "Sevilla", "Valencia"]
+}
+df = pd.DataFrame(data)
+
+# Guardamos el DataFrame en la base de datos
+df.to_sql("personas", conexion, if_exists="replace", index=False)
+\end{pycode}
+
+En el código podemos ver que escribir consiste en un poco más que el comando.
+\begin{itemize}
+    \item El primer parámetro es el ``nombre'' de la tabla.
+    \item El segundo parametro (conexion), es el objeto que creamos para sqlite3.connect(``Nombre de la base'')
+    \item \texttt{if\_exists=} define si la tabla ya existe. Las opcione son: \texttt{'fail'} que da error (es la que viene por defecto), \texttt{'replace'} borra la vieja y coloca la nueva y \texttt{'append'} que agrega los datos al final de los existentes.
+\end{itemize}
+
+\subsubsection{Leer una base de datos}
+
+Leer la base de datos es un poco más sencillo, pues aplicamos el lenguaje de SQL para filtar los datos antes de que lleguen. 
+
+Utilizamos el comando:
+\begin{verbatim}
+    pd.read_sql(comando de sql, objeto de conexión)
+\end{verbatim}
+
+Vease en código:
+\begin{pycode}{Leer datos de SQLite}
+import sqlite3
+import pandas as pd
+
+df_leido = pd.read_sql("SELECT * FROM personas", conexion)
+\end{pycode}
+
+Aquí podemos ver que el primer parametro luego del comando corresponde a la consulta (query), donde podemos traer todo con \texttt{SELECT * FROM nombre\_tabla} o solo lo que necesitamos: \texttt{SELECT nombre FROM personas WHERE edad > 30}.
+
+El segundo parametro es el objeto de conexión.
+
+
+
+
+\subsection{MySQL}
+
+A diferencia de SQLite (que es un archivo en tu PC), MySQL es un sistema Cliente-Servidor. Esto significa que los datos viven en un servidor potente al que muchos usuarios pueden conectarse al mismo tiempo.
+
+Para que \textit{Pandas} pueda hablar con \textit{MySQL} se necesita un intermediario, que va a ser:
+\begin{verbatim}
+    SQLAlchemy
+\end{verbatim}
+Y 
+\begin{verbatim}
+    PyMySQL
+\end{verbatim}
+
+Esta las puede instalar con pip de la siguiente forma \texttt{pip install sqlalchemy pymysql}
+
+\subsubsection{Escribir en MySQL}
+
+La mejor forma de explicarlo es en código:
+\begin{pycode}{Escribir y en MySQL}
+import pandas as pd
+from sqlalchemy import create_engine
+# Create engine porque es lo que va a tener las credenciales de acceso
+
+# Definimos las credenciales
+usuario = 'root'
+password = 'tu_password'
+host = 'localhost'    # o la IP del servidor
+puerto = '3306'       # puerto por defecto de MySQL
+base_datos = 'HolaMundo'
+
+# Creamos la cadena de conexion (URL)
+# Formato: mysql+mysqlconnector://usuario:password@host:puerto/nombre_bd
+# f"mysql+mysqlconnector://{usuario}:{password}@{host}:{puerto}/{base_datos}"
+url = f"mysql+mysqlconnector://{root}:{tu_password}@{localhost}:{3306}/{HolaMundo}"
+
+# Creamos el motor de conexion
+engine = create_engine(url)
+
+# Guardamos datos en MySQL
+df.to_sql('tabla', engine, if_exists='append', index=False)
+
+\end{pycode}
+
+La escritura funciona de manera muy similar a SQLite, donde colocamos el nombre de la tabla, la conexión, luego si el dato existe que hacer (existe tambien: false y replace) y por ultimo el indice que pandas coloca de forma automática.
+
+\subsubsection{Leer de MySQL}
+
+Siguiendo el código anterior, para leer datos con pandas utilizamos algo muy similar a SQLite:
+\begin{pycode}{Leer datos de MySQL}
+query = "SELECT * FROM HolaMundo WHERE tabla = xd"
+df = pd.read_sql(query, engine)
+\end{pycode}
+
+
+

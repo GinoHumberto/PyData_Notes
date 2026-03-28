@@ -1,17 +1,10 @@
 import pandas as pd
 
-# Creamos el data frame
-df = pd.DataFrame({
-'Producto': ['Soja', 'Maíz', 'Trigo'],
-'Toneladas': [100, 200, 150],
-'Precio_Unitario': [400, 250, 300]
-})
+# Caso 1: Filtrar empleados Senior con buen sueldo (AND)
+senior_bien_pagos = df[(df["Edad"] > 30) & (df["Salario"] > 60000)]
 
-# Operación suma
-total_tons = df['Toneladas'].sum()
+# Caso 2: Filtrar por múltiples ciudades (OR)
+norte_y_litoral = df[(df["Ciudad"] == "Rosario") | (df["Ciudad"] == "Salta")]
 
-# Operación para obtener la media
-promedio_precio = df['Precio_Unitario'].mean()
-
-# Devuelve todas las estadísticas
-resumen = df.describe()
+print(senior_bien_pagos)
+print(norte_y_litoral)
