@@ -1,0 +1,239 @@
+\section{Manejo de series temporales}
+
+\subsection{Conversión de fechas (\texttt{to\_datetime})}
+
+Cuando se importan \textit{Data sets}, estos suelen traer las fechas como texto. Con \texttt{pd.to\_datetime} se transforman en objeto tipo \texttt{datetime64}. Listos para operaciones temporales.
+
+\begin{pycode}{Conversion de texto a fecha}
+import pandas as pd
+
+datos = {
+    "Fecha": ["2024-01-01", "2024-01-05", "2024-02-10", "2024-02-15", "2024-03-01"],
+    "Ventas": [100, 120, 90, 150, 200]
+}
+
+df = pd.DataFrame(datos)
+
+# Lo convertimos en fecha
+df["Fecha"] = pd.to_datetime(df["Fecha"])
+print(df.dtypes) # Retorna:
+# Fecha     datetime64[us]
+# Ventas             int64
+# dtype: object
+\end{pycode}
+
+
+
+\subsection{Indexación por fecha}
+
+Una fecha puede ser establecida como índice con \texttt{set\_index('columna de fechas')}, para luego poder indexar desde esta.
+
+\begin{pycode}{Indexación por índice}
+import pandas as pd
+
+datos = {
+    "Fecha": ["2024-01-01", "2024-01-05", "2024-02-10", "2024-02-15", "2024-03-01"],
+    "Ventas": [100, 120, 90, 150, 200]
+}
+
+df = pd.DataFrame(datos)
+df["Fecha"] = pd.to_datetime(df["Fecha"])
+
+# Fechas como índice
+df = df.set_index("Fecha")
+print(df) # Retorna:
+#             Ventas
+# Fecha             
+# 2024-01-01     100
+# 2024-01-05     120
+# 2024-02-10      90
+# 2024-02-15     150
+# 2024-03-01     200
+
+print(df.loc["2024-01-5"]) # Retorna:
+# Ventas    120
+
+print(df.loc["2024-01-05":"2024-03-01"]) # Retorna:
+#             Ventas
+# Fecha             
+# 2024-01-05     120
+# 2024-02-10      90
+# 2024-02-15     150
+# 2024-03-01     200    
+\end{pycode}
+
+\begin{nota}
+    Expresiones como: \texttt{2024} devuelve el año entero y \texttt{2024-01} devuelve el mes de ese año.
+\end{nota}
+
+
+\subsection{Resampleo (\texttt{.resample()})}
+
+La función \texttt{.resample()} re-agrupa datos por periodo (día, mes, año) y le aplica una función (mean(), count()\dots).
+
+Para reagrupar datos se utiliza como frecuencia:
+\begin{itemize}
+    \item \texttt{'D'}: día
+    \item \texttt{'W'}: Semana
+    \item \texttt{'ME'}: Mes
+    \item \texttt{'QE'}: Trimestre
+    \item \texttt{'YE'}: Año
+\end{itemize}
+
+\begin{pycode}{Resampleo por periodo}
+import pandas as pd
+
+datos = {
+    "Fecha": ["2024-01-01", "2024-01-05", "2024-02-10", "2024-02-15", "2024-03-01"],
+    "Ventas": [100, 120, 90, 150, 200]
+}
+
+df = pd.DataFrame(datos)
+df["Fecha"] = pd.to_datetime(df["Fecha"])
+
+df = df.set_index("Fecha")
+
+print(df.resample('QE').count()) # Retorna:
+#             Ventas
+# Fecha             
+# 2024-03-31       5
+
+print(df.resample('ME').count()) # Retorna:
+#             Ventas
+# Fecha             
+# 2024-01-31       2
+# 2024-02-29       2
+# 2024-03-31       1
+\end{pycode}
+
+
+
+
+
+
+\section{Optimización de Recursos}
+
+\textit{Pandas} es muy bueno, pero su flexibilidad tiene un costo en memoria RAM. Por defecto, la librería es \textit{generosa} y asigna el espacio máximo posible a cada dato para evitar errores, pero esto puede volver pesados sus procesos.
+
+\subsection{Eficiencia de memoria (\textit{Downcasting})}
+
+Cuando usted carga un archivo, \textit{Pandas} suele asignar tipos de datos estándar como \texttt{int64} o \texttt{float64}. Esto significa que cada número reserva 64 bits de memoria, incluso si el número es un simple ``5''.
+
+\subsubsection{Reducción de tipos numéricos}
+
+Podemos utilizar \texttt{.astype()} para encoger nuestros datos a variantes que ocupen menos bits, siempre y cuando el valor quepa en ese nuevo envase:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textit{Tipo} & \textit{Rango de valores} & \textit{Uso recomendado} \\ \hline
+\texttt{int8} & -128 a 127 & IDs cortos, cantidades pequeñas. \\ \hline
+\texttt{int16} & -32,768 a 32,767 & Stock de depósitos, días del año. \\ \hline
+\texttt{int32} & Más de 9 ceros & Conteos estándar. \\ \hline
+\texttt{float32} & Decimales con 7 dígitos & Precios y tasas de interés. \\ \hline
+\end{tabular}
+\caption{Variantes de tipos de datos para optimización}
+\end{table}
+
+\begin{pycode}{Downcasting manual}
+import pandas as pd
+
+# Supongamos que tiene una columna de 'Edad' o 'Mes'
+# No hace falta usar 64 bits para un número que no pasa de 100
+
+df['Mes'] = df['Mes'].astype('int8')
+
+# Si tiene precios con pocos decimales, float32 es más que suficiente
+df['Precio'] = df['Precio'].astype('float32')
+\end{pycode}
+
+\subsubsection{El tipo \texttt{category}: El ahorro definitivo}
+
+Como mencionamos anteriormente, si una columna de texto se repite constantemente (como ``País de Destino'' o ``Precio''), convertirla a \texttt{category} puede reducir el uso de memoria en un 90\%. En lugar de guardar la palabra ``Argentina'' mil veces, \textit{Pandas} la guarda una sola vez y le asigna un número pequeño a las repeticiones.
+
+\begin{pycode}{Optimización por categorías}
+Verificamos el uso de memoria antes y después
+
+print(df['Pais'].memory_usage(deep=True))
+
+df['Pais'] = df['Pais'].astype('category')
+
+print(df['Pais'].memory_usage(deep=True)) # Notará una reducción masiva
+\end{pycode}
+
+\begin{nota}
+Puede usar \texttt{df.info(memory\_usage='deep')} para ver cuántos Megabytes está consumiendo su tabla en tiempo real.
+\end{nota}
+
+
+Utilice funciones \textit{vectorizadas} siempre que pueda. Solo utilice bucles o las funciones de \texttt{.apply()} y \texttt{.map()} para lógicas personalizadas.
+
+
+
+
+\subsection{Estrategias para Datasets de Gran Volumen}
+
+Cuando el volumen de datos excede la memoria RAM disponible, es necesario abandonar la carga tradicional y adoptar un enfoque de procesamiento incremental y almacenamiento eficiente.
+
+\subsection{Lectura incremental (\textit{chunksize})}
+
+El parámetro \texttt{chunksize} convierte la carga en un iterador. Es decir le indica a \textit{Pandas} que no cargue todo el archivo en la memoria, sino que lo convierta en un objeto iterable que entrega una cantidad fija de filas por cada vuelta.
+
+\begin{pycode}{Procesamiento por trozos}
+import pandas as pd
+
+# Procesamos el archivo en bloques de 100,000 filas
+for chunk in pd.read_csv("datos_grandes.csv", chunksize=100000):
+    # Realizamos una agregación parcial para no saturar la memoria
+    print(f"Promedio parcial de salario: {chunk['Salario'].mean()}")
+\end{pycode}
+
+\subsection{Optimización desde la carga (\textit{dtype} y \textit{usecols})}
+
+Puede definir los tipos de datos y las columnas necesarias durante la lectura. (Antes que entren a la memoria)
+
+\begin{itemize}
+\item \texttt{usecols}: Carga solo las columnas estrictamente necesarias para el análisis. Menos columnas significan menos uso de RAM.
+\item \texttt{dtype}: Asigna tipos de datos reducidos (\texttt{int8}, \texttt{float32}, \texttt{category}) desde el inicio.
+\end{itemize}
+
+\begin{pycode}{Carga quirúrgica}
+import pandas as pd
+
+# Cargamos solo 3 columnas con tipos de datos optimizados
+df = pd.read_csv("datos.csv",
+    usecols=["ID", "Edad", "Ciudad"],
+    dtype={"Edad": "int8", "Ciudad": "category"})
+\end{pycode}
+
+\subsection{Formatos de almacenamiento de alto rendimiento}
+
+El formato \texttt{.csv} es universal pero ineficiente para archivos grandes (es lento de leer y no preserva los tipos de datos). Para análisis profesional, se utilizan formatos columnares como Parquet o Feather.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textit{Formato} & \textit{Ventaja Principal} & \textit{Uso Ideal} \\ \hline
+\texttt{.csv} & Universalidad. & Intercambio de datos pequeños. \\ \hline
+\texttt{.parquet} & Compresión. & Almacenamiento a largo plazo. \\ \hline
+\texttt{.feather} & Velocidad récord. & Almacenamiento temporal. \\ \hline
+\end{tabular}
+\caption{Comparativa de formatos de archivo en Pandas}
+\end{table}
+
+\begin{pycode}{Uso de Parquet}
+import pandas as pd
+import pyarrow
+
+#Exportar a formato optimizado (requiere la librería pyarrow)
+df.to_parquet("datos.parquet", index=False)
+
+# Lectura 
+df = pd.read_parquet("datos.parquet")
+\end{pycode}
+
+\subsection{Delegación de carga (SQL y Motores Externos)}
+
+Si sus datos residen en una base de datos SQL. Antes de traer los datos, utilice el motor de la base de datos para realizar filtros (\texttt{WHERE}) y agregaciones (\texttt{GROUP BY}) antes de importar los resultados a \textit{Pandas}.

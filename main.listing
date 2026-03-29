@@ -1,17 +1,8 @@
 import pandas as pd
+import pyarrow
 
-df = pd.DataFrame({
-    'Nombre': ['Juan', 'Ana', 'Pedro', 'Laura'],
-    'Lenguaje': ['Python', 'Python', 'Java', 'Java'],
-    'Salario': [100, 150, 80, 90]
-})
+#Exportar a formato optimizado (requiere la librería pyarrow)
+df.to_parquet("datos.parquet", index=False)
 
-# Usamos transform para que el promedio se repita en cada fila
-df['Promedio_Lenguaje'] = df.groupby('Lenguaje')['Salario'].transform('mean')
-
-print(df) # Retorna:
-#   Nombre Lenguaje  Salario  Promedio_Lenguaje
-# 0   Juan   Python      100              125.0
-# 1    Ana   Python      150              125.0
-# 2  Pedro     Java       80               85.0
-# 3  Laura     Java       90               85.0
+# Lectura
+df = pd.read_parquet("datos.parquet")

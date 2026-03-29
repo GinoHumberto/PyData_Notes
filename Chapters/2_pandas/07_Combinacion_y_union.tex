@@ -23,12 +23,12 @@ print(resultado) # Retorna:
 # 1  A3  B3
 \end{pycode}
 
-\begin{note}
+\begin{nota}
     Note como los indices se mantienen de forma original. Es decir si \texttt{df1} tiene índices \texttt{0, 1} y \texttt{df2} también tiene \texttt{0, 1}. El resultado tendrá los índices repetidos \texttt{(0, 1, 0, 1)}. Para que Pandas cree un nuevo índice continuo \texttt{(0, 1, 2, 3)}, usa \texttt{ignore\_index=True} de la siguiente forma:
     \begin{verbatim}
         pd.concat([df1, df2], ignore_index=True)
     \end{verbatim}
-\end{note}
+\end{nota}
 
 \subsubsection{Concatenacion Horizontal \texttt{(axis=1)}}
 
@@ -155,12 +155,15 @@ pedidos = pd.DataFrame({'ID': [1, 2], 'Producto': ['Laptop', 'Mouse']})
 
 # Utilizamos merge
 resultado = pd.merge(clientes, pedidos, on='ID')
-print(resultado)
+print(resultado) # Retorna: 
+#    ID  Nombre  Producto 
+# 0    1    Ana    Laptop 
+# 1    2   Juan     Mouse 
 \end{pycode}
 
-No siempre tendremos la suerte de que las columnas ``llave'' se llamen igual en ambas tablas. Para estos casos, en lugar de usar el parámetro \texttt{on}, le indicamos explícitamente a \textit{Pandas} qué columna mirar en la tabla de la izquierda (\texttt{left_on}) y cuál en la de la derecha (\texttt{right_on}).
+No siempre tendremos la suerte de que las columnas ``llave'' se llamen igual en ambas tablas. Para estos casos, en lugar de usar el parámetro \texttt{on}, le indicamos explícitamente a \textit{Pandas} qué columna mirar en la tabla de la izquierda (\texttt{left\_on}) y cuál en la de la derecha (\texttt{right\_on}).
 
-\begin{pycode}{left_on, right_on}
+\begin{pycode}{Utilización de 'on'}
 import pandas as pd
 
 df1 = pd.DataFrame({'A': ['A0', 'A1'], 'B': ['B0', 'B1']})
@@ -225,3 +228,57 @@ En caso de que se quiera unir una columna con un índice, se puede utilizar:
 
 
 \subsection{Apilado y Des-apilado (\texttt{stack, unstack})}
+
+\subsubsection{Apilado (\texttt{.stack})}
+
+La función \texttt{.stack()} pasa las columnas a filas. Se dice que ``comprime'' el \textit{Data Frame} para volverlos más largo y estrecho.
+
+\begin{pycode}{Apilamiento}
+import pandas as pd
+
+datos = {
+    'Notas':[8, 9],
+    'Edad':[15, 16]
+}
+
+df = pd.DataFrame(datos, index=['Juan', 'Ana'])
+print(df) # Retorna:
+#       Notas  Edad
+# Juan      8    15
+# Ana       9    16
+
+print(df.stack()) # Retorna:
+# Juan  Notas     8
+#       Edad     15
+# Ana   Notas     9
+#       Edad     16    
+\end{pycode}
+
+En el ejemplo, el \textit{Data Frame} tiene 2 indices filas. 
+
+
+\subsubsection{Desapilar (\texttt{.unstack()})}
+
+Es la operación inversa de \texttt{unstack()}. Este toma un nivel del índice de las filas y lo mueve hacia las columnas.
+
+\begin{pycode}{Desapilado}
+import pandas as pd
+
+datos = {
+    'Notas':[8, 9],
+    'Edad':[15, 16]
+}
+
+df = pd.DataFrame(datos, index=['Juan', 'Ana']).stack()
+
+print(df) # Retorna:
+# Juan  Notas     8
+#       Edad     15
+# Ana   Notas     9
+#       Edad     16
+
+print(df.unstack()) # Retorna:
+#       Notas  Edad
+# Juan      8    15
+# Ana       9    16    
+\end{pycode}
