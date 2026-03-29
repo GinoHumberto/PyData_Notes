@@ -1,1 +1,540 @@
 \section{Manejo de datos}
+
+En todo \textit{Dataset} real aparecen valores faltantes. \textit{Pandas} ofrece funciones diseñadas para detectar, eliminar o reemplazar estos datos sin que usted pierda el contexto analítico.
+
+\subsection{Detección de valores nulos \texttt{isnull()} y \texttt{notnull()}}
+
+En \textit{Pandas} los valores faltantes se prepresentan como \textit{NaN} (Not a Number). Este es un valor especial, heredado de \textit{NumPy}, que indica que el dato no existe o no pudo ser procesado.
+
+\subsubsection{Detectar valores nulos \texttt{isnull()}}
+
+La función \texttt{.isnull()} actúa como un escáner: recorre toda su tabla y le devuelve un valor \textit{True} donde encuentra un vacío y un \textit{False} donde hay datos reales.
+
+Vemos un ejemplo de su aplicación y su retorno.
+\begin{pycode}{isnull()}
+import pandas as pd
+
+# Creamos el Data Frame
+datos = {
+    'Programa': ['python', 'c', 'java'],
+    'Programador': ['Juan', None, 'Pablo'],
+    'Salario': [100, 5, None]
+}    
+
+df = pd.DataFrame(datos)
+print(df)
+#   Programa Programador  Salario
+# 0   python        Juan    100.0
+# 1        c         NaN      5.0
+# 2     java       Pablo      NaN
+
+print(df.isnull()) # Retorna:
+#    Programa  Programador  Salario
+# 0     False        False    False
+# 1     False         True    False
+# 2     False        False     True
+\end{pycode}
+
+Ver una tabla llena de \textit{True} y \textit{False} puede ser confuso en \textit{Datasets} grandes. Por eso, es común utilizar \texttt{.isnull().sum()}, que nos devuelve la sumatoria de datos faltantes de cada columna.
+
+\begin{pycode}{Función isnull().sum()}
+import pandas as pd
+
+# Creamos el Data Frame
+datos = {
+    'Programa': ['python', 'c', 'java'],
+    'Programador': ['Juan', None, 'Pablo'],
+    'Salario': [100, 5, None]
+}    
+
+df = pd.DataFrame(datos)
+print(df.isnull().sum()) # Retorna:
+# Programa       0
+# Programador    1
+# Salario        1
+\end{pycode}
+
+\subsubsection{Detectar valores No nulos \texttt{notnull()}}
+
+La función \texttt{notnull()} es la negativa (opuesta) de \texttt{isnull()}, esta detecta exclusivamente los datos que sí están presentes.
+
+\begin{pycode}{notnull()}
+import pandas as pd
+
+# Creamos el Data Frame
+datos = {
+    'Programa': ['python', 'c', 'java'],
+    'Programador': ['Juan', None, 'Pablo'],
+    'Salario': [100, 5, None]
+}    
+
+df = pd.DataFrame(datos)
+
+print(df.notnull()) # Retorna:
+#    Programa  Programador  Salario
+# 0      True         True     True
+# 1      True        False     True
+# 2      True         True    False
+\end{pycode}
+
+
+
+
+\subsection{Eliminación de datos \texttt{dropna()}}
+
+Muchas veces la mejor elección para mantener la integridad de un modelo es borrar las filas o columnas que tienen valores faltantes. Para esto existe la función \texttt{dropna()}.
+\begin{nota}
+    Utilizar \texttt{dropna()} sin parámetros puede reducir drásticamente el tamaño de su \textit{Dataset}. Antes de ejecutarlo, siempre verifique cuántos nulos tiene con \texttt{df.isnull().sum()} para saber qué impacto tendrá la eliminación.
+\end{nota}
+
+\subsubsection{Eliminar filas con cualquier dato nulo}
+
+Por defecto, \texttt{dropna()} busca en las filas (\textit{axis=0}) y elimina cualquier fila que contenga al menos un valor \textit{NaN}. Por lo tanto para eliminar filas con datos nulos utilice:
+\begin{verbatim}
+    df.dropna()
+\end{verbatim}
+
+Veamos con un ejemplo:
+\begin{pycode}{Eliminar fila con cualquier dato nulo}
+import pandas as pd
+
+# Creamos el Data Frame
+datos = {
+    'Programa': ['python', 'c', 'java'],
+    'Programador': ['Juan', None, 'Pablo'],
+    'Salario': [100, 5, None]
+}    
+
+df = pd.DataFrame(datos)
+print(df)
+#   Programa Programador  Salario
+# 0   python        Juan    100.0
+# 1        c         NaN      5.0
+# 2     java       Pablo      NaN
+
+print(df.dropna()) # Retorna
+#   Programa Programador  Salario
+# 0   python        Juan    100.0
+
+\end{pycode}
+
+\subsubsection{Eliminar columnas con cualquier dato nulo (axis=1)}
+
+Para eliminar columnas con cualquier valor nulo, tiene que indicarle a \textit{Pandas} que su interes está en borrar el \texttt{axis=1}, por lo tanto debe utilizar:
+\begin{verbatim}
+    df.dropna(axis=1)
+\end{verbatim}
+
+Observe en el ejemplo:
+\begin{pycode}{Eliminar cualquier columna con datos nulos}
+import pandas as pd
+
+# Creamos el Data Frame
+datos = {
+    'Programa': ['python', 'c', 'java'],
+    'Programador': ['Juan', None, 'Pablo'],
+    'Salario': [100, 5, None]
+}    
+
+df = pd.DataFrame(datos)
+
+print(df.dropna(axis=1)) # Retorna:
+#   Programa
+# 0   python
+# 1        c
+# 2     java
+
+\end{pycode}
+
+\subsubsection{Eliminar fila solo si todos los valore son nulos}
+
+A veces no queremos borrar ante cualquier valor faltante. El parámetro \texttt{how} nos permite graduar la severidad de la limpieza:
+\begin{itemize}
+\item \texttt{how='any'} (Por defecto): Borra si hay al menos un nulo.
+\item \texttt{how='all'}: Solo borra si toda la fila o columna es nula.
+\end{itemize}
+
+Para borrar si hay valores faltantes en toda la fila, utilizar:
+\begin{verbatim}
+    df.dropna(how='all')
+\end{verbatim}
+
+\begin{pycode}{Eliminar Fila si todos los datos son nulos}
+import pandas as pd
+
+# Creamos el Data Frame
+datos = {
+    'Programa': ['python', None, 'java'],
+    'Programador': ['Juan', None, 'Pablo'],
+    'Salario': [100, None, None]
+}    
+
+df = pd.DataFrame(datos)
+
+print(df.dropna(how='all')) # Retorna:
+#   Programa Programador  Salario
+# 0   python        Juan    100.0
+# 2     java       Pablo      NaN
+
+# Borra la fila donde todos son nulos, pero la segunda fila a pesar de tener un valor nulo no fue eliminada
+
+\end{pycode}
+
+\subsubsection{Eliminar filas con un valor mínimo}
+
+El parámetro \texttt{thresh} (de \textit{threshold}) es el punto medio. En el seleccionamos un valor mínimo de valores nulos que puedan haber por fila. Si la fila supera ese valor mínimo, \texttt{dropna()} la elimina. Para realizar esto, se utiliza:
+\begin{verbatim}
+    df.dropna(thresh=mínimo)
+\end{verbatim}
+
+En código:
+\begin{pycode}{Eliminar con valores mínimos}
+import pandas as pd
+
+# Creamos el Data Frame
+datos = {
+    'Programa': ['python', 'c', 'java'],
+    'Programador': ['Juan', None, 'Pablo'],
+    'Salario': [100, None, None]
+}    
+
+df = pd.DataFrame(datos)
+
+print(df.dropna(thresh=2)) # Retorna:
+#   Programa Programador  Salario
+# 0   python        Juan    100.0
+# 2     java       Pablo      NaN    
+\end{pycode}
+
+
+
+
+
+\subsection{Imputación y reemplazo (\textit{fillna(), replace()})}
+
+Si usted cuenta con un \textit{Dataset} limitado, no siempre podrá darse el lujo de eliminar información. En esos casos, deberá recurrir a rellenar los valores faltantes (\textit{imputación}) o reemplazar datos problemáticos.
+
+\subsubsection{Rellenar valores (\textit{fillna()})}
+
+La función \texttt{.fillna()} permite sustituir los (\textit{NaN}) por un valor que tenga sentido lógico para su análisis.
+
+\paragraph{Rellenar con valor fijo}
+
+Se utiliza cuando sabemos de antemano qué debería haber en ese espacio. Por ejemplo, si en una columna de "Descuentos" hay un \textit{NaN}, es razonable asumir que el descuento es \texttt{0}.
+
+Para rellenar con valor fijo se utiliza la función \texttt{fillna(valor\_fijo)}, el valor fijo es un valor totalmente determinado por nosotros. Veamos un ejemplo:
+\begin{pycode}{Rellenar con valores fijos}
+import pandas as pd
+
+# Creamos el Data Frame
+datos = {
+    'Programa': ['python', 'c', 'java'],
+    'Programador': ['Juan', None, 'Pablo'],
+    'Salario': [100, None, None]
+}    
+
+df = pd.DataFrame(datos)
+print(df)
+#   Programa Programador  Salario
+# 0   python        Juan    100.0
+# 1        c         NaN      NaN
+# 2     java       Pablo      NaN
+
+print(df.fillna(0)) # Retorna
+#   Programa Programador  Salario
+# 0   python        Juan    100.0
+# 1        c         NaN      NaN
+# 2     java       Pablo      NaN
+\end{pycode}
+
+\begin{nota}
+    No es ideal rellenar con valores arbitrarios, estos pueden modificar la muestra y llevarnos a conclusiones no reales.
+\end{nota}
+
+\paragraph{Rellenar con media}
+
+Este es el método preferido en estadística. Rellenar con la media permite que el promedio general de la columna no se altere drásticamente tras la imputación. También se puede rellenar con la moda o la mediana, si eso es lo que usted desea, remplace \textit{mean()} por \textit{median()} o \textit{mode()}.
+
+La estructura recomendada para aplicar esto a una sola columna es:
+\begin{verbatim}
+df['columna'] = df['columna'].fillna(df['columna'].mean())
+\end{verbatim}
+
+Donde:
+\begin{itemize}
+    \item \texttt{df['columna']=}: es a la columna a la que queremos remplazar los valores nulos por la media.
+    \item \texttt{df['columna']}: es en la columna donde se va a trabajar, esto para que la media se calcule solo con los números de esa columna y no con otros
+    \item \texttt{df['columna'].mean()}: Es la función que va a calcular la media. 
+\end{itemize}
+
+Veamoslo en código:
+\begin{pycode}{Remplazar valores nulos por la media}
+import pandas as pd
+
+# Creamos el Data Frame
+datos = {
+    'Programa': ['python', 'c', 'java'],
+    'Programador': ['Juan', None, 'Pablo'],
+    'Salario': [100, 5, None]
+}    
+
+df = pd.DataFrame(datos)
+
+# Remplazamos por la media:
+df['Salario'] = df['Salario'].fillna(df['Salario'].mean()) 
+
+print(df) # Retorna:
+#   Programa Programador  Salario
+# 0   python        Juan    100.0
+# 1        c         NaN      5.0
+# 2     java       Pablo     52.5
+
+\end{pycode}
+
+
+\paragraph{Rellenar con un valor por defecto (Texto)}
+
+SCuando trabajamos con columnas de tipo objeto (texto), no podemos usar promedios. En estos casos, lo ideal es asignar una etiqueta que indique explícitamente la ausencia de información, como "Desconocido", "No Declarado" o "N/A". Para rellenar utilizar:
+\begin{verbatim}
+    df['columna']= df['columna'].fillna('Desconocido')
+\end{verbatim}
+
+\begin{pycode}{Rellenar con valores por defecto}
+import pandas as pd
+
+# Creamos el Data Frame
+datos = {
+    'Programa': ['python', 'c', 'java'],
+    'Programador': ['Juan', None, 'Pablo'],
+    'Salario': [100, 5, None]
+}    
+
+df = pd.DataFrame(datos)
+
+# Remplazamos los nombres nulos por desconocido:
+df['Programador'] = df['Programador'].fillna('Desconocido') 
+
+print(df) # Retorna:
+#   Programa  Programador  Salario
+# 0   python         Juan    100.0
+# 1        c  Desconocido      5.0
+# 2     java        Pablo      NaN    
+\end{pycode}
+
+\paragraph{Rellenar por propagación (\textit{ffill} y \textit{bfill})}
+
+Estos toman los valores que le \textit{preceden} o los valores que le \textit{siguen} para rellenar nuestro bache. Para realizar esto se debe ejecutar:
+\begin{verbatim}
+    df.ffill() o bfill()
+\end{verbatim}
+Donde \begin{itemize}
+\item \texttt{ffill} (Forward Fill): Propaga el último valor válido hacia adelante. 
+\item \texttt{bfill} (Backward Fill): Toma el siguiente valor válido y lo "tira" hacia atrás para completar el hueco.
+\end{itemize}
+
+\begin{pycode}{Rellenar con el siguiente o el anterior}
+import pandas as pd
+
+# Creamos el Data Frame
+datos = {
+    'Programa': ['python', 'c', 'java'],
+    'Programador': ['Juan', None, 'Pablo'],
+    'Salario': [100, 5, None]
+}    
+
+df = pd.DataFrame(datos)
+
+# Rellenar con el siguiente
+df['Programador'] = df['Programador'].bfill()
+print(df) # Retorna:
+#   Programa Programador  Salario
+# 0   python        Juan    100.0
+# 1        c       Pablo      5.0
+# 2     java       Pablo      NaN
+
+# Rellenar con el anterior
+df['Salario'] = df['Salario'].ffill()
+print(df) # Retorna
+#   Programa Programador  Salario
+# 0   python        Juan    100.0
+# 1        c       Pablo      5.0
+# 2     java       Pablo      5.0
+\end{pycode}
+
+
+\begin{nota}
+\textit{Nota sobre límites:} Si usa \texttt{ffill} en la primera fila o \texttt{bfill} en la última, el valor seguirá siendo \textit{NaN}, ya que no hay un "vecino" del cual copiar la información.
+\end{nota}
+
+
+
+\subsubsection{Remplazar valores (\textit{replace()})}
+
+Para remplazar valores espcíficos se utiliza \texttt{.replace()}. Este es un buscador universal, cambia cualquier valor (nulo o no) por el valor de su elección. Es la herramienta ideal para corregir errores de carga, estandarizar nombres o realizar cambios masivos de etiquetas.
+
+\begin{pycode}{Utilización de .replace()}
+import pandas as pd
+import numpy as np
+
+# Creamos el Data Frame
+datos = {
+    'Programa': ['python', 'c', 'java'],
+    'Programador': ['Juan', None, 'Pablo'],
+    'Salario': [100, 5, None]
+}    
+
+df = pd.DataFrame(datos)
+
+# Remplazar nombre
+df['Programador'] = df['Programador'].replace({None:'Sin nombre'})
+print(df) # Retorna
+#   Programa Programador  Salario
+# 0   python        Juan    100.0
+# 1        c  Sin nombre      5.0
+# 2     java       Pablo      NaN
+
+# Remplazar número
+df['Salario'] = df['Salario'].replace({5:60, np.nan:40})
+print(df) # Retorna
+#   Programa Programador  Salario
+# 0   python        Juan    100.0
+# 1        c  Sin nombre     60.0
+# 2     java       Pablo     40.0
+
+# Si ponemos None y no np.nan, no va a cambiar el data frame
+
+# Cambia Multiples etiquetas
+df['Programa'] = df['Programa'].replace(['python', 'java'], 'High-Level')
+print(df) # Retorna:
+#      Programa Programador  Salario
+# 0  High-Level        Juan    100.0
+# 1           c  Sin nombre     60.0
+# 2  High-Level       Pablo     40.0
+\end{pycode}
+
+\begin{nota}
+    Para \textit{Pandas}, \texttt{None} no es lo mismo que \texttt{NaN}. El método \texttt{.replace()} busca una coincidencia exacta, y como en la columna de salarios lo que hay es un \texttt{NaN} de \textit{NumPy}, el diccionario {None: 40} no encuentra nada que cambiar.
+
+    Por eso hay que utilizar \texttt{np.nan: 40}
+\end{nota}
+
+
+
+
+
+\subsection{Transformaciones en \textit{Pandas} (\textit{apply(), map()})}
+
+Las transformaciones nos permiten aplicar reglas lógicas a toda una columna sin necesidad de escribir bucles \texttt{for}, lo que mantiene nuestro código limpio y extremadamente rápido.
+
+\subsubsection{Transformación individual (\textit{.map()})}
+
+La función \texttt{.map()} es una herramienta que permite cambiar los valores de una columna completa basandose en una regla. Esta solo funciona en series (columna individual), no en un \textit{Data Frame} completo (si lo usa para un \textit{Data Frame} le devolvera un error).
+
+Las utilizaciones más comunes de \texttt{.map()} son:
+\paragraph{1. Como Diccionario de Equivalencias}
+Es la forma más eficiente de estandarizar categorías. Si el valor de la celda coincide con una ``llave'' del diccionario, se reemplaza por su ``valor'' correspondiente.
+\begin{pycode}{.map() como diccionario}
+import pandas as pd
+
+df = pd.DataFrame({'Programa': ['python', 'c', 'java', 'python']})
+
+# Definimos el "mapa"
+niveles = {
+    'python': 'Fácil',
+    'c': 'Difícil',
+    'java': 'Medio'
+}
+
+# Creamos una nueva columna basada en el mapeo
+df['Dificultad'] = df['Programa'].map(niveles)
+
+print(df) # Retorna 
+#   Programa Dificultad
+# 0   python      Fácil
+# 1        c    Difícil
+# 2     java      Medio
+# 3   python      Fácil   
+\end{pycode}
+
+\paragraph{2. Como Función (Lambda)}
+Si la transformación requiere un cálculo o un cambio de formato (como agregar símbolos de moneda o unidades), utilizamos una función anónima \texttt{lambda}.
+Su estructura consiste en: \texttt{lambda x: funcion\_deseada}
+
+\begin{pycode}{.map() como función}
+import pandas as pd
+
+# Supongamos que tenemos salarios
+df_sueldos = pd.DataFrame({'Salario': [100, 50, 80]})
+
+# Queremos agregar el símbolo '$' y convertir a texto
+df_sueldos['Salario_Formateado'] = df_sueldos['Salario'].map(lambda x: f"${x} USD")
+
+print(df_sueldos) # Retorna
+#    Salario Salario_Formateado
+# 0      100           $100 USD
+# 1       50            $50 USD
+# 2       80            $80 USD
+\end{pycode}
+
+\begin{nota}
+    Si tu columna tiene valores nulos y no quieres que la función intente procesarlos (lo que podría dar error), puedes usar \texttt{na\_action='ignore'}.
+    \begin{verbatim}
+    df['Columna'].map(lambda x: x , na_action='ignore')
+    \end{verbatim}
+\end{nota}
+
+
+\subsubsection{Transformación múltiple (\textit{apply()})}
+
+La función \texttt{.apply()} es la herramienta más versátil de \textit{Pandas} para aplicar funciones personalizadas. A diferencia de \texttt{.map()}, esta puede trabajar tanto con columnas individuales (\textit{Series}) como con tablas completas (\textit{DataFrames}).
+
+\paragraph{En una serie}
+Se utiliza para aplicar funciones más complejas que una simple operación matemática. Es ideal cuando ya tienes una función definida previamente en tu código.
+\begin{pycode}{.apply() en una serie}
+import pandas as pd
+
+df = pd.DataFrame({'Salario': [100, 200, 300]})
+
+# Función que calcula un bono del 10%
+def calcular_bono(monto):
+    return monto * 1.10
+
+df['Salario_Con_Bono'] = df['Salario'].apply(calcular_bono)
+print(df) # Retorna:
+#    Salario  Salario_Con_Bono
+# 0      100             110.0
+# 1      200             220.0
+# 2      300             330.0
+\end{pycode}
+
+\paragraph{Para el Data Frame}
+Se puede utilizar \texttt{axis} para decidir si la función se aplica por columna(\texttt{axis=0} por defecto), o por fila (\texttt{axis=1}).
+
+\begin{pycode}{.apply() para el data frame}
+import pandas as pd
+
+datos = {
+    'Programa': ['python', 'c', 'java'],
+    'Salario': [100, 5, 80]
+}
+df = pd.DataFrame(datos)
+
+def clasificar_perfil(fila):
+    # Accedemos a los datos de la fila actual
+    if fila['Programa'] == 'python' and fila['Salario'] > 50:
+        return 'Senior Python'
+    else:
+        return 'Junior/Otro'
+
+# Aplicamos la función a lo largo de las filas
+df['Categoria'] = df.apply(clasificar_perfil, axis=1)
+print(df) # Retorna
+#   Programa  Salario      Categoria
+# 0   python      100  Senior Python
+# 1        c        5    Junior/Otro
+# 2     java       80    Junior/Otro
+\end{pycode}
+
+\begin{nota}
+    La función \texttt{.apply()} es lenta, ya que internamente funciona como un bucle \texttt{for}. Para operaciones matemáticas siempre procure usar funciones vectorizadas de \textit{Pandas} o \textit{NumPy}.
+\end{nota}

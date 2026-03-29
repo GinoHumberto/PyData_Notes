@@ -1,0 +1,342 @@
+\section{Ordenamiento, Agrupación y Agregación}
+
+\subsection{Ordenamiento}
+
+Un \textit{Data Frame} puede estar desordenado tras una carga de datos o una limpieza masiva. \textit{Pandas} nos permite reorganizarlo tanto por sus etiquetas (\textit{índices}) como por sus valores reales.
+
+\subsubsection{Ordenamiento por índice (\textit{sort\_index()})}
+
+Si su \textit{Data Frame} viene desordenado, puede reorganizar por índice de forma ascendente con la función \texttt{.sort\_index()}.
+\begin{pycode}{Ordenar por índice}
+import pandas as pd
+
+datos = {
+    'Nombres': ['Juan', 'Pedro', 'Gabriela'],
+    'Puestos': ['Administrativo', 'Secretario', 'Jefa'],
+    'Salario': [200, 190, 250]
+}
+
+df = pd.DataFrame(datos, index=['z', 'v', 'm']) 
+print(df) # Retorna:
+#     Nombres         Puestos  Salario
+# z      Juan  Administrativo      200
+# v     Pedro      Secretario      190
+# m  Gabriela            Jefa      250
+
+df_ordenado = df.sort_index()
+print(df_ordenado) # Retorna: 
+#     Nombres         Puestos  Salario
+# m  Gabriela            Jefa      250
+# v     Pedro      Secretario      190
+# z      Juan  Administrativo      200
+\end{pycode}
+
+Si desea ordenarlo de forma descendente utilice: 
+\begin{verbatim}
+    df.sort\_index(ascending=False)
+\end{verbatim}
+
+
+Para ordenar las \textit{columnas} de forma alfabética puede utilizar: \texttt{axis}, donde \texttt{axis=1} ordena las columnas.
+
+\begin{pycode}{Ordenar columnas de forma descendente}
+import pandas as pd
+
+datos = {
+    'Nombres': ['Juan', 'Pedro', 'Gabriela'],
+    'Puestos': ['Administrativo', 'Secretario', 'Jefa'],
+    'Salario': [200, 190, 250]
+}
+
+df = pd.DataFrame(datos, index=['z', 'v', 'm']) 
+print(df) # Retorna:
+#     Nombres         Puestos  Salario
+# z      Juan  Administrativo      200
+# v     Pedro      Secretario      190
+# m  Gabriela            Jefa      250
+
+df_columnas_ordenadas_descendentes = df.sort_index(axis=1, ascending=False)
+print(df_columnas_ordenadas_descendentes) # Retorna: 
+#    Salario         Puestos   Nombres
+# z      200  Administrativo      Juan
+# v      190      Secretario     Pedro
+# m      250            Jefa  Gabriela
+\end{pycode}
+
+\begin{nota}
+    Si no quiere crear una variable nueva (\texttt{df\_ordenado}), puede usar el parámetro \texttt{inplace=True}. Esto modificará el \textit{Data Frame} original directamente: \texttt{df.sort\_index(inplace=True)}.
+\end{nota}
+
+
+\subsubsection{Ordenamiento por valores (\textit{sort\_values()})}
+
+A diferencia del ordenamiento por índice, \texttt{.sort\_values()} reorganiza la tabla basándose en el contenido de una o más columnas específicas. Al utilizar la función \texttt{.sort\_values} ordenamos los valores de la columna de forma ascendente.
+
+Para ejecutarlo, es obligatorio indicar qué columna servirá como guía mediante el parámetro:
+\begin{verbatim}
+    df.sort_values(by='columna')
+\end{verbatim}
+
+Donde la columna va a ser la que va a estar organizada de forma ascendente.
+
+\begin{pycode}{Ordenar valores de forma ascendente}
+import pandas as pd
+
+datos = {
+    'Nombres': ['Juan', 'Pedro', 'Gabriela'],
+    'Puestos': ['Administrativo', 'Secretario', 'Jefa'],
+    'Salario': [200, 190, 250]
+}
+
+df = pd.DataFrame(datos, index=['z', 'v', 'm']) 
+print(df) # Retorna:
+#     Nombres         Puestos  Salario
+# z      Juan  Administrativo      200
+# v     Pedro      Secretario      190
+# m  Gabriela            Jefa      250
+
+df.sort_values(by='Salario', inplace=True)
+print(df) # Return 
+#     Nombres         Puestos  Salario
+# v     Pedro      Secretario      190
+# z      Juan  Administrativo      200
+# m  Gabriela            Jefa      250
+\end{pycode}
+
+Al igual que en \texttt{sort\_index()} se puede ordenar de forma descendente con \texttt{ascending=False}
+\begin{pycode}{Valores por orden descendente}
+import pandas as pd
+
+datos = {
+    'Nombres': ['Juan', 'Pedro', 'Gabriela'],
+    'Puestos': ['Administrativo', 'Secretario', 'Jefa'],
+    'Salario': [200, 190, 250]
+}
+
+df = pd.DataFrame(datos, index=['z', 'v', 'm']) 
+print(df) # Retorna:
+#     Nombres         Puestos  Salario
+# z      Juan  Administrativo      200
+# v     Pedro      Secretario      190
+# m  Gabriela            Jefa      250
+
+df.sort_values(by='Puestos', ascending=False, inplace=True)
+print(df) # Return 
+#     Nombres         Puestos  Salario
+# v     Pedro      Secretario      190
+# m  Gabriela            Jefa      250
+# z      Juan  Administrativo      200
+\end{pycode}
+
+\begin{nota}
+    Recuerde que las letras tambien son valores, se ordenan alfabéticamente.
+\end{nota}
+
+También se puede ordenar por varias columnas. Primero se ordena por la primera columna, y en caso de que se repita se ordena por la segunda columna que se otorgo. Esto se veria así:
+\begin{verbatim}
+    df.sort_values(by=["Puestos", "Salario"])
+\end{verbatim}
+Donde se va a ordenar por \texttt{Puestos}, pero si dos puestos son iguales, se va a ordenar por \texttt{Salario}.
+
+\begin{nota}
+    Si quiere que una columna sea ascendente y la otra descendente, puede pasar una lista al parámetro \texttt{ascending}: \texttt{df.sort\_values(by=['Puestos', 'Salario'], ascending=[True, False])}
+\end{nota}
+
+\begin{nota}
+    En el caso de tener valores iguales, se puede utilizar \texttt{kind='mergesort'} dentro de \texttt{sort\_values()}. Para aquellos valores repitidos mantengan el orden original que tenian en la lista vieja.
+\end{nota}
+
+
+
+\subsection{Agregación simple}
+
+Las funciones de agregación son aquellas que permiten obtener indicadores. Estas son:
+\begin{verbatim}
+    .mean() 
+    .sum()
+    .count()
+\end{verbatim}
+
+
+
+\subsection{Agrupación (\textit{.groupby()})}
+
+La función \texttt{.groupby} permite segmentar los datos para realizar cálculos por categorías.
+
+Su proceso consiste en:
+\begin{enumerate}
+    \item \textit{Split} (Dividir): Separamos los datos en grupos basados en columnas elegidas con \texttt{.groupby()}.
+    \item \textit{Apply} (Aplicar): Ejecutamos una operación sobre cada grupo de fomra independiente.
+    \item \textit{Combine} (Combinar): Juntamos los resultados de esos calculos en una nueva estructura de datos.
+\end{enumerate}
+
+\begin{pycode}{Utilización de .groupby()}
+import pandas as pd
+
+datos = {
+    'Programa': ['python', 'c', 'python', 'java', 'c', 'python'],
+    'Salario': [100, 50, 120, 80, 60, 90]
+}
+df = pd.DataFrame(datos)
+
+# Agrupamos por 'Programa' y calculamos la media del 'Salario'
+resultado = df.groupby('Programa', as_index=False)['Salario'].mean()
+
+print(resultado) # Retorna:
+#   Programa     Salario
+# 0        c   55.000000
+# 1     java   80.000000
+# 2   python  103.333333
+\end{pycode}
+
+\begin{nota}
+    Luego de \texttt{.groupby()}, \textit{Pandas} convierte las columnas por las que agrupas en el Índice del nuevo DataFrame. Para que siga siendo una columna normal, es decir que aparezca la columna salario, utilizamos \texttt{as\_index=False}, que básicamente luego de agrupar los datos, ordena que las columnas se mantengan como las originales.
+\end{nota}
+
+También se puede agrupar creando una lista de columnas. Por ejemplo:
+\begin{verbatim}
+    df.groupby(['columna1', 'columna2'])['columna'].mean()
+\end{verbatim}
+Donde se crean subgrupos dentro de grupos. 
+\begin{pycode}{Agrupación múltiple}
+import pandas as pd
+
+datos = {
+    'Sede': ['Madrid', 'Madrid', 'Barcelona', 'Barcelona', 'Madrid'],
+    'Lenguaje': ['Python', 'Java', 'Python', 'Python', 'Java'],
+    'Salario': [100, 90, 110, 105, 95]
+}
+df = pd.DataFrame(datos)
+
+# Agrupamos por Sede Y LENGUAJE
+agrupado = df.groupby(['Sede', 'Lenguaje'])['Salario'].mean()
+
+print(agrupado) # Retorna:
+# Sede       Lenguaje
+# Barcelona  Python      107.5
+# Madrid     Java         92.5
+#            Python      100.0
+
+# Madrid es un grupo y dentro tiene el subgurpo de java y python.
+\end{pycode}
+
+
+
+
+\subsection{Agregaciones múltiples (\textit{.agg()})}
+
+La función \texttt{.agg()}(aggregate), significa tomar más de un valor y resumirlo en uno solo. Esta combina las funciones básicas en una sola llamada.
+
+\subsubsection{Agregación múltiple}
+
+Para agregar más de una funcion múltiple podemos utilizar \texttt{.agg(funciones)}
+\begin{pycode}{Agregación Múltiple .agg()}
+import pandas as pd
+
+df = pd.DataFrame({
+    'Programa': ['Python', 'Python', 'Java', 'Java'],
+    'Salario': [100, 150, 80, 90]
+})
+
+# Pedimos varias funciones a la vez pasando una LISTA []
+resumen = df.groupby('Programa')['Salario'].agg(['min', 'max', 'sum', 'mean'])
+
+print(resumen) # Retorna:
+#           min  max  sum   mean
+# Programa                      
+# Java       80   90  170   85.0
+# Python    100  150  250  125.0
+\end{pycode}
+
+\subsubsection{Agregación por diccionario}
+
+Si hay un \textit{Data Frame} con múltiples columnas, podemos definir que calculo se quiere para cada una mediante el uso de un \textit{diccionario}.
+\begin{pycode}{Agrupación por diccionario}
+import pandas as pd
+
+datos = {
+    'Departamento': ['I+D', 'I+D', 'Ventas', 'Ventas'],
+    'Salario': [100, 150, 80, 90],
+    'Experiencia': [5, 8, 2, 3]
+}
+df = pd.DataFrame(datos)
+
+# Para Salario queremos el promedio, para Experiencia el máximo
+reglas = {
+    'Salario': 'mean',
+    'Experiencia': 'max'
+}
+
+resultado = df.groupby('Departamento').agg(reglas)
+print(resultado) # Retorna:
+#               Salario  Experiencia
+# Departamento                      
+# I+D             125.0            8
+# Ventas           85.0            3    
+\end{pycode}
+
+\subsubsection{Agregación con nombre personalizado}
+
+A las funciones se le puede colocar el nombre en la misma funcion \texttt{.agg()}, donde:
+\begin{verbatim}
+    .agg(nombre_nuevo = ('columna', 'función'))
+\end{verbatim}
+
+\begin{pycode}{Agregación con nombre personalizado}
+import pandas as pd
+
+datos = {
+    'Departamento': ['I+D', 'I+D', 'Ventas', 'Ventas'],
+    'Salario': [100, 150, 80, 90],
+    'Experiencia': [5, 8, 2, 3]
+}
+df = pd.DataFrame(datos)
+
+# Sintaxis: nombre_nuevo = ('columna_original', 'funcion')
+resumen = df.groupby('Departamento').agg(
+    salario_promedio = ('Salario', 'mean'),
+    max_experiencia = ('Experiencia', 'max')
+)
+
+print(resumen) # Retorna:
+#               salario_promedio  max_experiencia
+# Departamento                                   
+# I+D                      125.0                8
+# Ventas                    85.0                3 
+\end{pycode}
+
+\begin{nota}
+    Otras funciones que representan operaciones matemáticas son: \texttt{'sum', 'mean', 'std', 'count', 'min', 'max'}. Tambien pueden haber funciones de librerias de \textit{NumPy} o funciones personalizadas.
+\end{nota}
+
+
+
+
+
+\subsection{Tansformar datos (\textit{.transform()})}
+
+La función de \texttt{.transform()} es utilizada para realizar un cálculo por grupo, pero manteniendo el mismo número de filas que el \textit{Data Frame} inicial.
+
+Si usted quisiera comparar el sueldo de cada empleado contra el sueldo de su departamento, con \texttt{transform()} puede calcular el promnedio de cada grupo y este lo ``reparte'' en todas las filas pertenecientes a ese grupo.
+
+\begin{pycode}{.transform()}
+import pandas as pd
+
+df = pd.DataFrame({
+    'Nombre': ['Juan', 'Ana', 'Pedro', 'Laura'],
+    'Lenguaje': ['Python', 'Python', 'Java', 'Java'],
+    'Salario': [100, 150, 80, 90]
+})
+
+# Usamos transform para que el promedio se repita en cada fila
+df['Promedio_Lenguaje'] = df.groupby('Lenguaje')['Salario'].transform('mean')
+
+print(df) # Retorna:
+#   Nombre Lenguaje  Salario  Promedio_Lenguaje
+# 0   Juan   Python      100              125.0
+# 1    Ana   Python      150              125.0
+# 2  Pedro     Java       80               85.0
+# 3  Laura     Java       90               85.0    
+\end{pycode}
+
+

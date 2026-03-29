@@ -1,0 +1,227 @@
+\section{Combinanción y unión de Data Frames}
+
+\subsection{Concatenación \textit{.concat()}}
+
+Esta función es utilizada para unir dos o más \textit{Data Frames} o \textit{Series} a lo largo de un eje, ya sea poniendolo debajo del otro (fila) o al lado del otro (columna).
+
+\subsubsection{Concatenación vertical \texttt{(axis=0)}}
+
+Es el que viene por defecto. En este caso los datos se van a unir de forma vertical, es decir uno abajo del otro.
+\begin{pycode}{Unión vertical}
+import pandas as pd
+
+df1 = pd.DataFrame({'A': ['A0', 'A1'], 'B': ['B0', 'B1']})
+df2 = pd.DataFrame({'A': ['A2', 'A3'], 'B': ['B2', 'B3']})
+
+# Los pegamos uno abajo del otro
+resultado = pd.concat([df1, df2])
+print(resultado) # Retorna:
+#     A   B
+# 0  A0  B0
+# 1  A1  B1
+# 0  A2  B2
+# 1  A3  B3
+\end{pycode}
+
+\begin{note}
+    Note como los indices se mantienen de forma original. Es decir si \texttt{df1} tiene índices \texttt{0, 1} y \texttt{df2} también tiene \texttt{0, 1}. El resultado tendrá los índices repetidos \texttt{(0, 1, 0, 1)}. Para que Pandas cree un nuevo índice continuo \texttt{(0, 1, 2, 3)}, usa \texttt{ignore\_index=True} de la siguiente forma:
+    \begin{verbatim}
+        pd.concat([df1, df2], ignore_index=True)
+    \end{verbatim}
+\end{note}
+
+\subsubsection{Concatenacion Horizontal \texttt{(axis=1)}}
+
+Cuando queremos unir columnas.
+\begin{pycode}{Unión Horizontal}
+import pandas as pd
+
+df1 = pd.DataFrame({'A': ['A0', 'A1'], 'B': ['B0', 'B1']})
+df2 = pd.DataFrame({'A': ['A2', 'A3'], 'B': ['B2', 'B3']})
+
+# Los pegamos uno abajo del otro
+resultado = pd.concat([df1, df2], axis=1)
+print(resultado) # Retorna:
+#     A   B   A   B
+# 0  A0  B0  A2  B2
+# 1  A1  B1  A3  B3
+\end{pycode}
+
+\subsubsection{¿Qué sucede ante faltantes?}
+
+Si los \textit{Data Frames} no tienen las mismas columnas o filas, por defecto se aplica \texttt{how='outer'}, el cual conserva todas las columnas y en caso de que no exista un dato lo rellena con \texttt{NaN}. (Outer es la \((\cup )\) matemática)
+
+Si usted no quiere conservar datos nulos, puede utilizar \texttt{how='inner'}. (Inner es la intersección \((\cap)\) matemática).
+
+\begin{pycode}{Utilizacion de inner o outer}
+import pandas as pd
+
+df1 = pd.DataFrame({'ID': [1, 2], 'Nombre': ['Ana', 'Juan']})
+df2 = pd.DataFrame({'ID': [2, 3], 'Sueldo': [500, 600]})
+
+# INNER: Solo queda el ID 2 (el único en ambos)
+inner = pd.merge(df1, df2, on='ID', how='inner')
+print(inner) # Retorna
+#    ID Nombre  Sueldo
+# 0   2   Juan     500
+
+# OUTER: Quedan los IDs 1, 2 y 3 (rellena con NaN donde falta)
+outer = pd.merge(df1, df2, on='ID', how='outer')
+print(outer) # Retorna
+#    ID Nombre  Sueldo
+# 0   1    Ana     NaN
+# 1   2   Juan   500.0
+# 2   3    NaN   600.0  
+\end{pycode}
+
+\paragraph{Left Join (\texttt{how='left'})}
+
+Este mantiene todas las filas de la tabla izquierda y trae las concidencias de la tambla derecha. Si no hay concidencia rellena los huecos con \texttt{NaN}.
+\begin{pycode}{Left join}
+import pandas as pd
+
+clientes = pd.DataFrame({'ID': [1, 2, 3], 'Nombre': ['Ana', 'Juan', 'Pedro']})
+pedidos = pd.DataFrame({'ID': [1, 2], 'Producto': ['Laptop', 'Mouse']})
+
+# Pedro (ID 3) no tiene pedidos, pero con 'left' se mantiene en la lista
+resultado = pd.merge(clientes, pedidos, on='ID', how='left')
+print(resultado) # Retorna:
+#    ID Nombre Producto
+# 0   1    Ana   Laptop
+# 1   2   Juan    Mouse
+# 2   3  Pedro      NaN
+\end{pycode}
+
+\paragraph{Right join (\texttt{how='right'})}
+
+Es lo opuesto al anterior.
+
+\begin{pycode}{Right Join}
+import pandas as pd
+
+clientes = pd.DataFrame({'ID': [1, 2, 3], 'Nombre': ['Ana', 'Juan', 'Pedro']})
+pedidos = pd.DataFrame({'ID': [1, 2], 'Producto': ['Laptop', 'Mouse']})
+
+# Pedro (ID 3) no tiene pedidos, pero con 'left' se mantiene en la lista
+resultado = pd.merge(clientes, pedidos, on='ID', how='right')
+print(resultado) # Retorna:
+#    ID Nombre Producto
+# 0   1    Ana   Laptop
+# 1   2   Juan    Mouse
+\end{pycode}
+
+
+\subsubsection{Concatenación con llaves}
+
+Al "pegar" tablas una debajo de otra, a veces perdemos el rastro de qué fila pertenecía a qué archivo original. Para evitar esto, \textit{Pandas} permite usar el parámetro \texttt{keys}, que crea un índice jerárquico o \textit{MultiIndex}.
+
+Esto transforma su tabla en una estructura de niveles: el primer nivel indica el origen (la llave) y el segundo nivel conserva el índice original de la fila.
+\begin{pycode}{Concatenación con llaves}
+import pandas as pd
+
+df1 = pd.DataFrame({'A': ['A0', 'A1'], 'B': ['B0', 'B1']})
+df2 = pd.DataFrame({'A': ['A2', 'A3'], 'B': ['B2', 'B3']})
+
+resultado = pd.concat([df1, df2], keys=['Enero', 'Febrero'])
+# Esto te permite hacer: resultado.loc['Enero']
+
+print(resultado) # Retorna:
+#             A   B
+# Enero   0  A0  B0
+#         1  A1  B1
+# Febrero 0  A2  B2
+#         1  A3  B3
+\end{pycode}
+
+
+
+
+
+\subsection{Unión por \texttt{merge(), join()}}
+
+Ambos métodos sirven para combinar DataFrames basándose en etiquetas o columnas comunes.
+
+\subsubsection{Unión por \texttt{.merge()}}
+
+Esta función une \textit{Data Frames} usando columnas, es ideal cuando tenemos múltiples tablas con columnas comunes. 
+
+Básicamente \texttt{.merge} busca valores iguales en una columna de la Tabla A y una columna de la Tabla B, y cuando los encuentra, pega las filas para crear una sola fila más larga.
+
+\begin{pycode}{.merge()}
+import pandas as pd
+
+clientes = pd.DataFrame({'ID': [1, 2, 3], 'Nombre': ['Ana', 'Juan', 'Pedro']})
+pedidos = pd.DataFrame({'ID': [1, 2], 'Producto': ['Laptop', 'Mouse']})
+
+# Utilizamos merge
+resultado = pd.merge(clientes, pedidos, on='ID')
+print(resultado)
+\end{pycode}
+
+No siempre tendremos la suerte de que las columnas ``llave'' se llamen igual en ambas tablas. Para estos casos, en lugar de usar el parámetro \texttt{on}, le indicamos explícitamente a \textit{Pandas} qué columna mirar en la tabla de la izquierda (\texttt{left_on}) y cuál en la de la derecha (\texttt{right_on}).
+
+\begin{pycode}{left_on, right_on}
+import pandas as pd
+
+df1 = pd.DataFrame({'A': ['A0', 'A1'], 'B': ['B0', 'B1']})
+df2 = pd.DataFrame({'C': ['A1', 'A3'], 'D': ['B1', 'B3']})
+
+resultado = pd.merge(df1, df2, left_on='A', right_on='C')
+print(resultado) # Retorna:
+#     A   B   C   D
+# 0  A1  B1  A1  B1
+
+# Tanto para A como para C el valor es A1    
+\end{pycode}
+
+
+
+
+\subsubsection{Unión por (\texttt{.join()})}
+
+El método \texttt{.join()} es una forma rápida y conveniente de combinar dos DataFrames. A diferencia de \texttt{merge()}, su comportamiento está diseñado para unir tablas a través de sus índices (las etiquetas de las filas) en ves de columnas comúnes. Es la version simplificada.
+
+Cuando se utiliza \texttt{df1.join(df2)}, \textit{Pandas} mira los índices de ambos. Cuando encuentra números o etiquetas iguales, pega las columnas de \texttt{df2} al lado de las de \texttt{df1}.
+
+\begin{pycode}{Utilización básica de .join()}
+import pandas as pd
+
+# Tabla de empleados con ID como índice
+empleados = pd.DataFrame({
+    'Nombre': ['Juan', 'Ana']}, 
+    index=[1, 2]
+)
+
+# Tabla de sueldos con ID como índice
+sueldos = pd.DataFrame({
+    'Sueldo': [1000, 2000]}, 
+    index=[1, 2]
+)
+
+# Unimos directamente
+resultado = empleados.join(sueldos)
+print(resultado) # Retorna:
+#   Nombre  Sueldo
+# 1   Juan    1000
+# 2    Ana    2000 
+\end{pycode}
+
+\begin{nota}
+    Si ambos \textit{Data Frames} tienen una columna con la misma etiqueta, \texttt{.join()} da un error, al menos que se le diga qué sufijo ponerle a cada uno. Por ejemplo:
+    \begin{verbatim}
+        df1.join(df2, lsuffix='_izq', rsuffix='_der')
+    \end{verbatim}
+\end{nota}
+
+
+En caso de que se quiera unir una columna con un índice, se puede utilizar:
+\begin{verbatim}
+    df1.join(df2, on='ID_en_df1') 
+\end{verbatim}
+'on' es el que hace que \texttt{.join()} utilize la columna de \texttt{df1} para buscar el índice de \texttt{df2}.
+
+
+
+
+
+\subsection{Apilado y Des-apilado (\texttt{stack, unstack})}
