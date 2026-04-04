@@ -1,0 +1,275 @@
+\section{Personalización de gráficos en objetos}
+
+\subsection{Paquete de configuraciones predefinidas (\texttt{.style.use()})}
+
+Matplotlib incluye una gran variedad de estilos. Para ver cuáles tienes disponibles en tu computadora actual, usa este comando en tu terminal de Python:
+
+\begin{pycode}{Listar Estilos}
+import matplotlib.pyplot as plt
+
+print(plt.style.available)
+\end{pycode}
+
+Los estilos mas utilizados son:
+\begin{itemize}
+    \item \texttt{'ggplot'}: Usa un fondo gris claro con rejillas blancas. Es muy legible para informes técnicos.
+    \item \texttt{'bmh'}: (Bayesian Methods for Hackers). Ideal para gráficos estadísticos limpios y con colores sobrios.
+    \item \texttt{'seaborn-v0\_8'}: Emula la estética de Seaborn. Utiliza paletas de colores que son fáciles de distinguir para personas con daltonismo.
+    \item \texttt{'dark\_background'}: Perfecto para presentaciones en pantallas OLED o dashboards nocturnos.
+    \item \texttt{'grayscale'}: Para cuando el documento se va a imprimir en blanco y negro; asegura que las líneas se distingan por su tono de gris.
+\end{itemize}
+
+La utilización de \texttt{plt.style.use} tiene un efecto global. Una vez ejecutada, todos los graficos que se creen heredan ese estilo.
+
+En código, esto se aplicaria de la siguiente manera:
+\begin{pycode}{Aplicar Estilo}
+import matplotlib.pyplot as plt
+
+# Aplicamos el estilo al principio del script
+plt.style.use('ggplot')
+
+# Cualquier grafico siguiente hereda el estilo
+fig, ax = plt.subplots()
+ax.plot([1, 2, 3], [10, 20, 15], label="Figura con estilo heredado")
+ax.legend()
+plt.show()
+\end{pycode}
+
+
+\subsubsection{Context manager (Uso temporal)}
+
+Si queremos que solo un gráfico tenga un estilo diferente, pero que el resto mantenga el estilo estándar se utiliza \texttt{with}, \texttt{context}.
+
+\begin{pycode}{Estilo Temporal}
+# Estilo por defecto
+
+# Estilo temporal
+with plt.style.context('dark_background'):
+fig, ax = plt.subplots()
+ax.plot([1, 2, 3], [10, 20, 15], label="Figura con estilo heredado")
+
+# Estilo por defecto
+
+\end{pycode}
+
+
+
+\subsection{Personalización de cada elemento (\texttt{plt.rcParams()})}
+
+Este permite personalizar cada gráfico por elemento. Runtime Configuration (configuración en tiempo de ejecución) o \texttt{rc} es un objeto que contiene los valores por defecto de cada característica del gráfico.
+
+Cada vez que se importa \textit{Matplotlib} se carga una configuración por defecto. Si se modifica el valor en \texttt{plt.rcParams}, ese cambio se vuelve el nuevo estándar para cada gráfico que se cree en esa sesión de \textit{Python}.
+
+Para ver la cantidad inmensa de opciones que puedes modificar, puedes imprimir el objeto coplteto (son cientos):
+
+\begin{pycode}{Ver rcParams}
+import matplotlib as plt
+
+# Ver todas las llaves disponibles para configurar
+print(len(plt.rcParams.keys()))
+
+# Buscar parámetros especificos relacionados con 'font' (fuentes)
+fuentes = {k: v for k, v in plt.rcParams.items() if 'font' in k}
+print(fuentes)
+
+# Buscar parámetros especificos con 'grilla'
+grid_params = {k: v for k, v in plt.rcParams.items() if 'grid' in k}
+print(grid_params)
+\end{pycode}
+
+\subsubsection{Modificaciones comunes}
+
+\emph{Tipografía y tamaños}
+
+Hay parametros que permiten modificar el tamaño, el tipo de letra, su fuente, \dots
+\begin{pycode}{Configuracion de fuentes}
+plt.rcParams['font.size'] = 12          # Tamaño general
+plt.rcParams['axes.titlesize'] = 16    # Tamaño del titulo del grafico
+plt.rcParams['axes.labelsize'] = 14    # Tamaño de etiquetas X e Y
+plt.rcParams['font.family'] = 'serif'   # Fuente con serifa (estilo Times New Roman)
+\end{pycode}
+
+\emph{Lineas y marcadores}
+
+Para no tener que definir el grosor de cada linea, el tamaño, color, se puede definir en \texttt{plt.rcParams}.
+\begin{pycode}{Configuracion de lineas}
+plt.rcParams['lines.linewidth'] = 2.5   # Lineas mas gruesas
+plt.rcParams['lines.markersize'] = 8     # Marcadores mas grandes
+plt.rcParams['lines.color'] = 'tab:blue' # Color por defecto
+\end{pycode}
+
+\emph{El Lienzo (Figure) y la Rejilla (Grid)}
+
+Se puede modificar el tamaño general de todos los gráficos, el estilo de grilla, su \texttt{alpha}, para que quede de forma predefinida en todos los gráficos que vaya a realizar.
+\begin{pycode}{Configuracion de fondo}
+plt.rcParams['figure.figsize'] = (10, 6) # Tamaño por defecto (ancho, alto)
+plt.rcParams['axes.grid'] = True          # ¡Activar la grilla en todos los graficos!
+plt.rcParams['grid.alpha'] = 0.3          # Hacer la grilla sutil (transparencia)
+plt.rcParams['grid.linestyle'] = '--'     # Grilla punteada
+\end{pycode}
+
+\subsubsection{Forma abreviada (\texttt{plt.rc()})}
+
+Esta forma permite cambiar muchos parámetros de un mismo \textit{grupo}. Si quisieramos cambiar todo lo referido a \texttt{fuentes}, podriamos utilizar:
+\begin{verbatim}
+    plt.rc('font', configuraciones\dots)
+\end{verbatim}
+\begin{pycode}{Metodo abreviado}
+plt.rc('font', size=12, family='sans-serif', weight='bold')
+plt.rc('lines', linewidth=2, linestyle='-')
+\end{pycode}
+
+
+\begin{pycode}{Ejeplto de personalización para este documento}
+import matplotlib.pyplot as plt
+
+# -------------------------- #
+#       Personalización      #
+# -------------------------- #
+
+# ---- Para latex ---- #
+
+plt.rcParams.update({
+    "pgf.texsystem": "xelatex",    
+    "font.family": "serif",
+    "text.usetex": True,           
+    "pgf.rcfonts": False,          
+    "pgf.preamble": "\n".join([    
+         r"\usepackage{fontspec}",
+         r"\setmainfont{CMU Serif}",
+    ])
+})
+
+# ---- Grilla ---- #
+
+plt.rcParams.update({
+    'axes.grid':True,
+    'grid.linestyle':'--',
+    'grid.linewidth':0.5,
+    'grid.color':'gray',
+    'grid.alpha':0.5
+})
+
+# ------------------ #
+#       Gráfico      #
+# ------------------ #
+
+fig, ax = plt.subplots(1, 2, sharey=True, figsize=(5, 5))
+
+# Eje 1
+ax[0].plot([100, 150, 130],['Ene', 'Feb', 'Mar'] , color='blue')
+ax[0].set_ylabel('Producto A')
+
+# Eje 2
+ax[1].plot([90, 110, 140], ['Ene', 'Feb', 'Mar'], color='green')
+ax[1].set_ylabel('Producto B')
+
+# Título global
+fig.suptitle('Gráfico de ejes compartidos con personalización', fontsize=14)    
+\end{pycode}
+
+La visualización de personalización para este documento se ve en la figura \ref{fig:grafico_objeto_con_rcParams}
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_objeto_con_rcParams.pgf} 
+    \caption{Gráfico Personalizado con rcParams}
+    \label{fig:grafico_objeto_con_rcParams}
+\end{figure}
+
+\begin{nota}
+    Si observo detenidamente se utiliza \texttt{axes.grid} ya que \textit{Matplot} organiza sus parámetros por categorías. La grilla por defecto pertenece a la categoría \texttt{axes}.
+
+    ¿Por qué utilizo \texttt{rcParams.update()}? Si utilizara \texttt{rcParams['parámetro'] = 'estilo'} deberia utilizar esa misma linea para modificar cada parámetro. En cambio si agregamos \texttt{.update} con un diccionario, podemos modificar varios parámetros de una sola vez.
+\end{nota}
+
+\begin{nota}
+    En mi configuración para \LaTeX  \texttt{"text.usetex": True}, le pido a \textit{Python} que llame a la instalación local de \LaTeX (\textit{TeX Live} o \textit{MiKTeX}) para renderizar cada letra del gráfico. Esto garantiza que fórmulas matemáticas y fuentes (\texttt{CMU Serif}) coincidan perfectamente con tu documento principal.
+\end{nota}
+
+\begin{nota}
+    \textit{Orden de precedencia:} Si usted define algo en \texttt{rcParams} pero luego, define un parametro dentro de un \texttt{ax.plot(color='red')}, que en este caso especifica un color manual, el comando local (\texttt{ax.plot()}) gana sobre la configuración global.
+\end{nota}
+
+
+
+\subsection{Creación de temas personalizados (\texttt{.mplstyle})}
+
+Para crear una modificación personalizada que pueda aplicar a cualquier proyecto en el cual utilice \textit{Matplotlib} debe crear un archivo \texttt{.mplstyle}. Este documento puede tener cualquier nombre, pero terminar con el formato .\texttt{mplstyle}.
+
+Dentro del archivo escriba las configuraciones utilizando la lógica de \texttt{key:Value}, pero sin comillas y usando ``\#'' para los comentarios.
+
+por ej:
+\begin{pycode}{Archivo .mplstyle}
+# Estilo Personalizado para Reportes
+
+# FUENTES Y TEXTOS
+font.family : serif
+font.serif  : DejaVu Serif, Times New Roman
+font.size   : 11
+axes.titlesize : 14
+axes.titleweight : bold
+axes.labelsize : 12
+
+# LINEAS Y MARCADORES
+lines.linewidth : 2.5
+lines.markersize : 8
+lines.marker : o
+
+# OTROS...
+\end{pycode}
+
+\subsubsection{Ubicación y Carga del Tema}
+
+Para que \textit{Matplotlib} reconozca su estilo de forma global (desde cualquier proyecto), debe guardarlo en la carpeta de configuración del sistema:
+
+\begin{itemize}
+\item \textit{Windows:} \texttt{C:\textbackslash Usuarios\textbackslash Usuario\textbackslash .matplotlib\textbackslash stylelib\textbackslash}
+\item \textit{Linux/Mac:} \texttt{\textasciitilde/.config/matplotlib/stylelib/}
+\end{itemize}
+
+Si lo guarda allí, podrá invocarlo simplemente por su nombre:
+\begin{verbatim}
+plt.style.use('mi_estilo')
+\end{verbatim}
+
+Si prefiere mantener el estilo dentro de la carpeta de un proyecto específico, utilice la ruta relativa:
+\begin{verbatim}
+plt.style.use('./estilo_proyecto.mplstyle')
+\end{verbatim}
+
+
+
+
+\subsection{Gestión de Ciclos de Color (\texttt{prop\_cycle})}
+
+Cuando graficamos múltiples series de datos en un mismo objeto \texttt{ax}, \textit{Matplotlib} debe decidir qué color asignarle a cada una para que no se confundan. Esta decisión la toma consultando el \texttt{prop\_cycle} (ciclo de propiedades).
+
+\subsubsection{Personalización con \texttt{cycler}}
+
+Para crear una experiencia visual profesional, podemos definir no solo colores, sino también combinar estilos de línea y marcadores en un solo ciclo. Esto asegura que, incluso si el reporte se imprime en blanco y negro, las líneas sean distinguibles por su trazo (sólido, punteado, etc.).
+
+\begin{pycode}{Configuración de ciclo avanzado}
+import matplotlib.pyplot as plt
+from cycler import cycler
+
+colores = ['#1f77b4', '#ff7f0e', '#2ca02c'] # Azul, Naranja, Verde
+estilos = ['-', '--', ':'] # Sólido, Rayado, Punteado
+
+# Creamos el ciclo combinado 
+mi_ciclo = cycler(color=colores) + cycler(linestyle=estilos)
+
+# Aplicamos el ciclo a la categoría 'axes'
+plt.rc('axes', prop_cycle=mi_ciclo)
+\end{pycode}
+
+\subsubsection{Integración en archivos \texttt{.mplstyle}}
+
+Para que su paleta de colores sea permanente en todos sus proyectos, puede definirla directamente en su archivo de estilo. La sintaxis dentro de un \texttt{.mplstyle} requiere que la función \texttt{cycler} se escriba en una sola línea:
+
+\begin{verbatim}
+En su archivo .mplstyle
+
+axes.prop_cycle : cycler(
+    'color', ['2980B9', '27AE60', 'E67E22', '8E44AD']
+    )
+\end{verbatim}

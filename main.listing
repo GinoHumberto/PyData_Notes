@@ -1,8 +1,42 @@
-import pandas as pd
-import pyarrow
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
 
-#Exportar a formato optimizado (requiere la librería pyarrow)
-df.to_parquet("datos.parquet", index=False)
+# Datos
+t = np.linspace(0, 6 * np.pi, 600)
 
-# Lectura
-df = pd.read_parquet("datos.parquet")
+# Creamos la figura
+fig = plt.figure(figsize=(10, 6), layout='constrained')
+
+# Creamos un GridSpec de 2 filas y 3 columnas con dimensiones personalizadas
+gs = GridSpec(
+    nrows=2,
+    ncols=3,
+    figure=fig,
+    width_ratios=[1, 2, 2],
+    height_ratios=[1, 1]
+)
+
+# Primer Gráfico:
+ax_left = fig.add_subplot(gs[:, 0]) # Ocupa todas las filas de la primera columna.
+ax_left.plot(t, np.sin(t), linewidth=1)
+ax_left.set_title("Panel izquierdo (2 filas)")
+
+# Segundo Gráfico
+ax_c_top = fig.add_subplot(gs[0, 1]) # Primera fila segunda columna
+ax_c_top.plot(t, np.cos(t), color="orange")
+ax_c_top.set_title("Centro arriba")
+
+# Tercer Gráfico
+ax_c_bot = fig.add_subplot(gs[1, :]) # Segunda fila columna 1 y 2
+ax_c_bot.plot(t, np.sin(2 * t), color="green")
+ax_c_bot.set_title("Centro abajo")
+
+# Cuarto Gráfico
+ax_right = fig.add_subplot(gs[0, 2]) # Primera fila, 3era columna
+ax_right.plot(t, np.cos(2 * t), color="red")
+ax_right.set_title("Derecha arriba")
+
+# Título general
+fig.suptitle("GridSpec con anchos asimétricos y spans de filas")
+plt.show()

@@ -1,0 +1,168 @@
+\section{Matplot con objetos}
+
+Utilizar el estilo orientado a objetos es la forma recomendada para proyectos complejos. Nos permite manipular cada elemento del gráfico como un "objeto" independiente, lo que otorga mayor control sobre el diseño.
+
+\subsection{Estructura (\texttt{fig, ax} y \texttt{subplots})}
+
+La función \texttt{plt.subplots()} es la forma más eficiente de inicializar esta estructura. Al ejecutarla, \textit{Matplotlib} nos devuelve dos entidades distintas: la Figura y los Ejes.
+
+\subsubsection{La Figura (\texttt{fig})}
+
+La figura es el contenedor de nivel superior; piense en ella como el lienzo, el marco del cuadro o una plantilla.
+\begin{itemize}
+\item \textit{Función:} Controla el tamaño total, el color de fondo y la exportación.
+\item \textit{Uso común:} \texttt{fig.savefig()} y \texttt{fig.suptitle()} (título global que engloba a todos los subgráficos).
+\end{itemize}
+
+\subsubsection{Los Ejes (\texttt{ax})}
+
+El objeto \texttt{ax} (abreviatura de \textit{Axes}) es el gráfico propiamente dicho. Es el área limitada por las líneas de los ejes donde se dibujan los datos.
+\begin{itemize}
+\item \textit{Función:} Contiene los métodos para graficar (\texttt{.plot}, \texttt{.bar}) y personalizar etiquetas.
+\item \textit{Versatilidad:} Una figura (\texttt{fig}) puede contener múltiples objetos \texttt{ax} organizados en una grilla.
+\end{itemize}
+
+\subsubsection{Tablero \texttt{.subplots()}}
+
+Subplot es la herramienta de organización que nos deja la interfaz orientada a objetos. Esta funciona como una grilla o una tabla de gráficos, la cual nos permite determinar cuantos gráficos queremos en nuestra figura.
+
+La sintaxis completa consiste de:
+\begin{verbatim}
+fig, ax = plt.subplots(nrows = n, ncols = n, figsize = (a,h))
+\end{verbatim}
+
+Donde:
+\begin{itemize}
+    \item \texttt{nrows}: es el número de filas.
+    \item \texttt{ncols}: es el número de columnas.
+    \item \texttt{figsize}: es la dimensión. Se expresa en pulgadas como \texttt{(ancho, alto)}. Por defecto \textit{Matplot} utiliza 6.4 de ancho y 4.8 de alto.
+\end{itemize}
+
+\subsection{Gráfico de un eje con objetos}
+
+\begin{pycode}{Gráfico de un eje}
+import matplotlib.pyplot as plt
+
+# Crear figura y un eje
+fig, ax = plt.subplots()
+
+# Dibujar en el eje
+ax.plot([1, 2, 3], [2, 4, 6])
+
+# Titulos y etiquetas
+ax.set_title("Ejemplo con Figure y Axes")
+ax.set_xlabel("Eje X")
+ax.set_ylabel("Eje Y")
+plt.show()    
+\end{pycode}
+
+El gráfico simple hecho en objetos queda como la figura \ref{fig:grafico_objeto_1eje}
+
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_objeto_1eje.pgf} 
+    \caption{Gráfico con objetos de un eje}
+    \label{fig:grafico_objeto_1eje}
+\end{figure}
+
+\subsection{Gráfico de múltiples ejes}
+
+Para comparar variables en paralelo se necesita más de un gráfico dentro de la misma figura. 
+
+Creamos más graficos definiendo cuantas filas y columnas queremos en el tablero (\texttt{.subplots()}).
+\begin{verbatim}
+    fig, ax = plt.subplots(nrows=2, ncols=2)
+\end{verbatim}
+Estamos creando 2 filas y 2 columnas, es decir una matriz de \(2 \times 2\).
+Con \texttt{axes} accedemos a cada gráfico utilizando las cordenadas de \texttt{[fila, columna]} empezando desde 0. Es decir \begin{itemize}
+    \item Para el primer gráfico (superior izquierdo) utilizamos: \texttt{axes[0, 0]}.
+    \item Para el segundo gráfico (superior derecho) utilizamos: \texttt{axes[0, 1]}.
+    \item Para el tercer gráfico (inferior izquierdo) utilizamos: \texttt{axes[1, 0]}.
+    \item Para el cuarto gráfico (inferior derecho) utilizamos: \texttt{axes[1, 1]}.
+\end{itemize}
+
+En caso de que tengamos una fila o una sola columna (ejemplo: \texttt{subplots(nrows=n, ncols=1)}), la matriz deja de ser bidimensional y pasa a ser una serie o una lista simple. Se accede solo con: \texttt{axes[0], axes[1], \dots}
+
+\begin{pycode}{Gráfico de múltiples ejes separados}
+import matplotlib.pyplot as plt
+
+fig, axs = plt.subplots(2, 2) # 2 filas, 2 columnas
+
+# Primer gráfico
+axs[0, 0].plot([1, 2, 3], [1, 2, 3])
+axs[0, 0].set_title("Arriba Izq.")
+
+# Segundo gráfico
+axs[0, 1].plot([1, 2, 3], [1, 4, 9])
+axs[0, 1].set_title("Arriba Der.")
+
+# Tercer gráfico
+axs[1, 0].plot([1, 2, 3], [1, 8, 27])
+axs[1, 0].set_title("Abajo Izq.")
+
+# Cuarto gráfico
+axs[1, 1].plot([1, 2, 3], [1, 16, 81])
+axs[1, 1].set_title("Abajo Der.")
+
+# Grilla:
+for ax in axs.flat:
+    ax.grid(True, linestyle='--', linewidth=0.5, color='gray', alpha=0.5)
+
+# Título general
+fig.suptitle('Grafico de multiples ejes')
+
+plt.tight_layout() # Ajusta espacios
+plt.show()    
+\end{pycode}
+
+El gráfico de multiples ejes en diferentes figuras, se puede observar en la figura \ref{fig:grafico_objeto_4eje}
+
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_objeto_4ejes.pgf} 
+    \caption{Gráfico con objetos de multiples ejes}
+    \label{fig:grafico_objeto_4eje}
+\end{figure}
+
+\begin{nota}
+    Si esta utilizando matplot para graficos en latex, utilice: \texttt{fig.tight\_layout(rect=[0, 0.03, 1, 0.95])}. Esto para que se calculen los margenes automáticamente.
+    
+    El parámetro \texttt{rect} deja un espacio arriba para el suptitle, ya que tight\_layout a veces lo ignora.
+\end{nota}
+
+\subsubsection{Ejes compartidos (\textit{sharex} y \textit{sharey})}
+
+Cuando los subgráficos representan variables con la misma unidad o escala temporal, es una buena práctica eliminar las etiquetas redundantes. Esto limpia la visualización y permite que los gráficos sean más grandes dentro del mismo lienzo.
+
+\begin{itemize}
+\item \texttt{sharex=True}: Los gráficos en una misma columna comparten el eje horizontal. Solo se muestran las etiquetas en los gráficos de la fila inferior.
+\item \texttt{sharey=True}: Los gráficos en una misma fila comparten el eje vertical. Solo se muestran las etiquetas en la columna de la izquierda.
+\end{itemize}
+
+\begin{pycode}{Ejes compartidos}
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(2, 1, sharex=True) # Comparten eje horizontal
+
+# Eje 1
+ax[0].plot(['Ene', 'Feb', 'Mar'], [100, 150, 130], color='blue')
+ax[0].set_ylabel('Producto A')
+
+# Eje 2
+ax[1].plot(['Ene', 'Feb', 'Mar'], [90, 110, 140], color='green')
+ax[1].set_ylabel('Producto B')
+
+# Título
+fig.suptitle('Comparativa de Exportaciones Mensuales')
+plt.show()
+\end{pycode}
+
+Este grafico se puede observar en la figura \ref{fig:grafico_objeto_ejes_compartidos}. En este el eje x es compartido.
+
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_objeto_ejes_compartidos.pgf} 
+    \caption{Gráfico de ejes compartidos}
+    \label{fig:grafico_objeto_ejes_compartidos}
+\end{figure}
+

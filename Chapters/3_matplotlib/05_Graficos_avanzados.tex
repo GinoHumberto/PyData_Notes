@@ -1,0 +1,389 @@
+\section{Tipos de gráficos avanzados}
+
+\subsection{Gráfico de torta (\textit{.pie()})}
+
+Este gráfico representa datos categóricos como "rebanadas" de un círculo proporcional a su magnitud. Es efectivo cuando se tienen pocas categorías (máximo 5 o 6) y las diferencias entre ellas son fáciles de distinguir visualmente.
+
+Para generar un gráfico profesional y legible, se utilizan los siguientes parámetros clave:
+
+\begin{itemize}
+\item \texttt{labels}: Lista de nombres para cada sector.
+\item \texttt{autopct}: Formatea automáticamente los valores numéricos en porcentajes dentro de la torta. \texttt{'\%1.1f\%\%'} muestra un decimal (ej: 25.4\%).
+\item \texttt{startangle}: Define dónde empieza la primera rebanada. Usar \texttt{90} hace que el gráfico comience en la parte superior ("las 12 en punto"), lo cual es un estándar visual.
+\item \texttt{explode}: Permite "despegar" o resaltar una porción específica del resto del círculo.
+\item \texttt{wedgeprops}: Permite añadir bordes a los sectores (usualmente blancos) para que los colores no se toquen directamente, mejorando la nitidez.
+\end{itemize}
+
+\begin{pycode}{Gráfico de torta}
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots()
+
+# Datos 
+paises = ['Brasil', 'China', 'EE.UU.', 'Otros']
+valores = [35, 30, 20, 15]
+desplazamiento = [0.1, 0, 0, 0] # Resaltamos a Brasil
+
+ax.pie(
+    valores,
+    labels=paises,
+    explode=desplazamiento,
+    autopct="%1.1f%%",
+    startangle=140,
+    shadow=True, # Agrega una sombra sutil para dar profundidad
+    wedgeprops={"linewidth": 1.5, "edgecolor": "white"}
+)
+
+ax.set_aspect('equal') # Para que sea circular
+ax.set_title("Participación de países en el mercado")
+
+plt.show()
+\end{pycode}
+
+\begin{nota}
+Por defecto, si el lienzo de la figura es rectangular, la torta se verá ovalada. Es obligatorio usar \texttt{ax.set\_aspect('equal')} para forzar una relación de aspecto 1:1 y que el círculo sea perfecto.
+\end{nota}
+
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_torta_avanzado.pgf} 
+    \caption{Gráfico de torta}
+    \label{fig:grafico_torta_avanzado}
+\end{figure}
+
+
+
+\subsection{Gráficos de área (\texttt{.fill\_between()})}
+
+La función \texttt{.fill\_between()} permite colorear el espacio comprendido entre dos líneas horizontales o entre una curva y un valor de referencia (generalmente el eje 0).
+
+Esta técnica es útil para:
+\begin{itemize}
+\item Resaltar volumen: Da peso visual a la magnitud total acumulada a lo largo del tiempo.
+\item Mostrar desviaciones: Sombrear el rango entre un valor proyectado y uno real.
+\item Diferenciar condiciones: Usar el parámetro \texttt{where} para cambiar el color del área según qué curva sea superior.
+\end{itemize}
+
+\paragraph{Sintaxis básica}
+\begin{verbatim}
+ax.fill_between(x, y1, y2, where=condicion, alpha=transparencia)
+\end{verbatim}
+
+\begin{pycode}{Gráfico de área bajo la curva}
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Datos
+x = np.linspace(0, 10, 200)
+y = np.sin(x) + 1.5
+
+fig, ax = plt.subplots()
+ax.plot(x, y, label="Señal")
+
+# Área bajo la curva
+ax.fill_between(x, y, 0, alpha=0.3) # Relleno hasta el eje X
+
+ax.set_title("Área bajo la curva")
+ax.set_xlabel("Tiempo")
+ax.set_ylabel("Amplitud")
+ax.legend()
+plt.show()
+\end{pycode}
+
+\begin{pycode}{Área entre curvas}
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Datos
+x = np.linspace(0, 2 * np.pi, 300)
+y1 = np.sin(x) + 1
+y2 = np.cos(x) + 1
+
+fig, ax = plt.subplots()
+ax.plot(x, y1, label="Seno")
+ax.plot(x, y2, label="Coseno")
+
+# Área bajo la curva
+ax.fill_between(x, y1, y2, where=(y1 >= y2), alpha=0.25, label="Área (y1 >=y2)")
+ax.fill_between(x, y1, y2, where=(y1 < y2), alpha=0.25, label="Área (y1 < y2)")
+
+ax.set_title("Área entre dos curvas")
+ax.set_xlabel("Ángulo")
+ax.set_ylabel("Valor")
+ax.legend()
+plt.show()    
+\end{pycode}
+
+\begin{pycode}{Ambos gráficos en uno}
+import numpy as np
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(1,2, figsize=(5, 5))
+
+# ------------------ #
+#       Ax[0]        #
+# ------------------ #
+x = np.linspace(0, 10, 200)
+y = np.sin(x) + 1.5
+
+ax[0].plot(x,y, label='señal')
+ax[0].fill_between(x, y, 0, alpha=0.3) # 0 es para que llegue al eje x, alpha es la transparencia.
+ax[0].set_title("Área bajo la curva")
+ax[0].set_xlabel("Tiempo")
+ax[0].set_ylabel("Amplitud")
+ax[0].legend()
+
+# ------------------ #
+#       Ax[1]        #
+# ------------------ #
+x_1 = np.linspace(0, 2 * np.pi, 300)
+y_1 = np.sin(x_1) + 1
+y_2 = np.cos(x_1) + 1
+
+ax[1].plot(x_1, y_1, label="Seno")
+ax[1].plot(x_1, y_2, label="Coseno")
+ax[1].fill_between(x_1, y_1, y_2, where=(y_1 >= y_2), alpha=0.25, label="Área (y1 >=y2)")
+ax[1].fill_between(x_1, y_1, y_2, where=(y_1 < y_2), alpha=0.25, label="Área (y1 < y2)")
+ax[1].set_title("Área entre dos curvas")
+ax[1].set_xlabel("Ángulo")
+ax[1].set_ylabel("Valor")
+ax[1].legend()
+
+# Título global
+fig.suptitle('Gráfico de Áreas', fontsize=14)  
+\end{pycode}
+
+La convinación de ambos graficos nos deja la figura \ref{fig:grafico_area_curva}
+
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_de_area.pgf} 
+    \caption{Gráfico de Áreas}
+    \label{fig:grafico_area_curva}
+\end{figure}
+
+
+\subsection{Gráfico de densidad con histograma (\texttt{.hist(density=True)})}
+
+El histograma es la representación gráfica de la distribución de un conjunto de datos numéricos. Al utilizar el parámetro \texttt{density=True}, normalizamos el gráfico: el eje vertical deja de mostrar la "frecuencia absoluta" y pasa a mostrar la "densidad de probabilidad".
+
+\subsubsection{Conceptos clave del histograma}
+
+\begin{itemize}
+\item \textit{Bins} (Contenedores): Es la cantidad de intervalos en los que dividimos los datos. Usar \texttt{bins="auto"} es una excelente práctica, ya que \textit{Matplotlib} utiliza algoritmos estadísticos (como la regla de Sturges o Freedman-Diaconis) para calcular el ancho óptimo según la cantidad de datos.
+\item \textit{Normalización:} Es lo que permite comparar el histograma con funciones matemáticas continuas. Sin \texttt{density=True}, las escalas del histograma (frecuencia) y de la curva normal (probabilidad) serían incompatibles.
+\end{itemize}
+
+\begin{pycode}{Histograma normalizado}
+import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(42)
+muestras = np.random.normal(loc=0, scale=1, size=2000)\
+
+fig, ax = plt.subplots()
+
+# Histograma como densidad
+ax.hist(
+    muestras,
+    bins="auto",
+    density=True, # Con esto lo normalizamos
+    edgecolor="black",
+    alpha=0.4,
+    label="Hist (densidad)"
+)
+
+# Curva normal estimada con media y desvío de los datos
+mu, sigma = np.mean(muestras), np.std(muestras, ddof=1)
+x = np.linspace(mu - 4 * sigma, mu + 4 * sigma, 400)
+pdf = (1 / (sigma * np.sqrt(2 * np.pi))) * np.exp(-0.5 * ((x - mu) / sigma) ** 2)
+
+ax.plot(x, pdf, linewidth=2, label=f"N(mu={mu:.2f}, sigma={sigma:.2f})")
+
+ax.set_title("Distribución y densidad (hist con density=True)")
+ax.set_xlabel("Valor")
+ax.set_ylabel("Densidad")
+ax.legend()
+plt.show()
+\end{pycode}
+
+Vea el histograma normalizado en la figura \ref{fig:grafico_avanzado_hist}
+
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_avanzado_hist.pgf} 
+    \caption{Histograma normalizado}
+    \label{fig:grafico_avanzado_hist}
+\end{figure}
+
+
+\subsection{Diagramas de Error (\textit{.errorbar()})}
+
+La función \texttt{.errorbar()} añade una capa de información sobre la variabilidad o incertidumbre de cada punto graficado.
+
+\subsubsection{Componentes del Gráfico de Error}
+
+\begin{itemize}
+\item \texttt{yerr} / \texttt{xerr}: Define la magnitud del error. Puede ser un valor fijo para todos los puntos o un arreglo con un error específico para cada medición.
+\item \texttt{fmt} (\textit{format}): Controla la apariencia del marcador y la línea de conexión (ej: \texttt{'o-'} para círculos conectados por una línea sólida).
+\item \texttt{capsize}: Agrega pequeñas barras horizontales (tapas) al final de las líneas de error, lo que mejora drásticamente la lectura visual de la dispersión.
+\item \texttt{ecolor} / \texttt{elinewidth}: Permite que las barras de error tengan un color y grosor distinto al de la línea principal para evitar que el gráfico se vea sobrecargado.
+\end{itemize}
+
+\begin{pycode}{Diagrama de error vertical}
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.arange(1, 6)
+y = np.array([2.0, 2.5, 3.7, 3.2, 4.1])
+
+yerr = np.array([0.2, 0.3, 0.25, 0.35, 0.2]) # Error vertical
+
+fig, ax = plt.subplots()
+ax.errorbar(
+    x,
+    y,
+    yerr=yerr,
+    fmt="o-", # Marcador + línea
+    capsize=4, # Lineas horizontales en el extremo de la barra de error
+    elinewidth=1.2, # Grosor de la barra de error
+    label="Medición con error"
+)
+
+ax.set_title("Diagrama de error (errorbar)")
+ax.set_xlabel("Muestra")
+ax.set_ylabel("Valor medido")
+ax.legend()
+plt.show()    
+\end{pycode}
+
+\begin{pycode}{Diagrama de error vertical y horizontal}
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(0.5, 2.5, 5)
+y = np.array([1.5, 1.8, 2.1, 2.0, 2.3])
+
+# Errores
+xerr = 0.1
+yerr = [0.05, 0.1, 0.08, 0.12, 0.06]
+
+fig, ax = plt.subplots()
+ax.errorbar(
+    x,
+    y,
+    xerr=xerr,
+    yerr=yerr,
+    fmt="s-",
+    capsize=3,
+    ecolor="gray",
+    label="Error en X e Y"
+)
+
+ax.set_title("Barras de error en ambos ejes")
+ax.set_xlabel("X")
+ax.set_ylabel("Y")
+ax.legend()
+plt.show()    
+\end{pycode}
+
+\begin{nota}
+    Si quiere realizar errores asimétricos, esto se realiza utilizando una matriz en lugar de un array simple en \texttt{yerr} o \texttt{xerr}, por ej: \texttt{yerr = [[1, 2, 1], [4, 5, 2]]}.  
+\end{nota}
+
+La combinación de \texttt{xerr} y \texttt{yerr} nos da la figura \ref{fig:grafico_diagrama_error}
+
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_diagrama_error.pgf} 
+    \caption{Gráfico de ejes compartidos}
+    \label{fig:grafico_diagrama_error}
+\end{figure}
+
+
+
+\subsection{Diseño con \texttt{GridSpec}}
+
+GridSpec es un módulo de \textit{Matplotlib} que permite al usuario realizar la arquitectura de la figura. Si usted hiciera \texttt{[plt.GridSpec(3, 3)]}, lo que esta haciendo es trazar líneas imaginarias sobre su figura para dividirla en 9 áreas iguales (3 filas y 3 columnas).
+
+\subsubsection{Asignación de espacios}
+
+La diferencia de \texttt{.GridSpect} con la utilización de objetos de \textit{Matplotlib} esta en la forma en la que se pueden \textit{asignar los espacios}. Usted puede decirle a cada gráfico (\texttt{ax}) en qué coordenadas va, para esop utilizamos el \textit{Slicing}. El grafico puede tomar más de un área.
+
+Si Usted quiere que su grafico ocupe toda la parte de arriba, es decir las 3 columnas de la primera fila, utiliza \texttt{[0, :]}. Si quiere que el gráfico ocupe toda una columna, por ejemplo la ultima columna, utiliza \texttt{[:, 2]}. Si no termino de entender, aquí le dejo otras posibles posiciones:
+\begin{itemize}
+    \item \texttt{[0, 0]}: Solo la celda de la esquina superior izquierda.
+    \item \texttt{[1, :]}: Toda la segunda fila completa.
+    \item \texttt{[:, -1]}: Toda la última columna completa.
+    \item \texttt{[1:, :2]}: Desde la segunda fila hasta el final, y desde la primera columna hasta la segunda.
+\end{itemize}
+
+La diferencia con \texttt{subplots} es que todas las grillas son flexibles, por lo tanto puede enfatizar gráficos asignandole más espacios.
+
+Para utilizar \texttt{GridSpec} se suele utilizar la siguiente estructura:
+\begin{verbatim}
+gs = GridSpec(nrows=?, ncols=?, figure=?)
+\end{verbatim}
+
+Para controlar las proporciones, es decir determinar el tamaño de las columnas o filas, puede utilizar dentro de \texttt{GridSpec} los parametros de \texttt{width\_ratios} y \texttt{height\_ratios}. 
+\begin{ejemplo}
+    Si creara una grilla con \texttt{GridSpec} de \texttt{2 x 2} y quisiera que la primera columna sea tres veces más ancha que la segunda columna, utilizara \texttt{width\_ratios=[3,1]}. Si quiere que la segunda fila sea el doble de alta que la primera fila utilizaria \texttt{height\_ratios=[1,2]}
+\end{ejemplo}
+
+\begin{pycode}{Estructura GridSpec}
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
+
+# Datos
+t = np.linspace(0, 6 * np.pi, 600)
+
+# Creamos la figura
+fig = plt.figure(figsize=(10, 6), layout='constrained')
+
+# Creamos un GridSpec de 2 filas y 3 columnas con dimensiones personalizadas
+gs = GridSpec(
+    nrows=2,
+    ncols=3,
+    figure=fig,
+    width_ratios=[1, 2, 2],
+    height_ratios=[1, 1]
+)
+
+# Primer Gráfico:
+ax_left = fig.add_subplot(gs[:, 0]) # Ocupa todas las filas de la primera columna.
+ax_left.plot(t, np.sin(t), linewidth=1)
+ax_left.set_title("Panel izquierdo (2 filas)")
+
+# Segundo Gráfico
+ax_c_top = fig.add_subplot(gs[0, 1]) # Primera fila segunda columna
+ax_c_top.plot(t, np.cos(t), color="orange")
+ax_c_top.set_title("Centro arriba")
+
+# Tercer Gráfico
+ax_c_bot = fig.add_subplot(gs[1, :]) # Segunda fila columna 1 y 2
+ax_c_bot.plot(t, np.sin(2 * t), color="green")
+ax_c_bot.set_title("Centro abajo")
+
+# Cuarto Gráfico
+ax_right = fig.add_subplot(gs[0, 2]) # Primera fila, 3era columna
+ax_right.plot(t, np.cos(2 * t), color="red")
+ax_right.set_title("Derecha arriba")
+
+# Título general
+fig.suptitle("GridSpec con anchos asimétricos y spans de filas")
+plt.show()
+\end{pycode}
+
+El código deja la figura \ref{fig:grafico_con_GridSpec}.
+
+\begin{nota}
+    Tambien se puede utilizar las funciones de \texttt{sharex} y \texttt{sharey} dentro de grid spec.
+\end{nota}
+
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_con_GridSpec.pgf} 
+    \caption{Gráfico Utilizando GridSpec}
+    \label{fig:grafico_con_GridSpec}
+\end{figure}

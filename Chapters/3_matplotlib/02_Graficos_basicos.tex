@@ -1,0 +1,195 @@
+\section{Gráficos básicos}
+
+\textit{Matplot} tiene una amplia variedad de gráficos para visualizar datos de manera efectiva. 
+
+\subsection{Gráficos de líneas (\texttt{.plot()})}
+
+Es aquel gráfico con el que estuvimos practicando. Este es ideal para seguir la evolución de una variable en el tiempo, ya que se utiliza para visualizar series temporales.
+
+Para realizar este gráfico se utiliza:
+\begin{verbatim}
+    plt.plot(x, y, ..., linestyle='')
+\end{verbatim}
+
+La abreviación en ,plot ya que el creador buscaba replicar el entorno de \textit{Matlab} y en matlab el comando para generar greaficos es \textit{.plot()}. El término ``plot'' significa trazar o mapear puntos en un plano.
+
+Un grafico \texttt{.plot()} se ve como la figura \ref{fig:grafico_simple_1} y \ref{fig:grafico_simple_grilla}.
+
+
+\subsection{Diagramas de dispersión (\texttt{.scatter})}
+
+Scatter Plot o Gráfico de dispersión, es un tipo de gráfico que se utiliza para visualizar la relación o correlación entre dos variables numéricas. Permite ver si los datos forman patrones, nubes o tendencias sin sugerir que hay una conexión secuencial entre ellos.
+
+Es utilizada para: 
+\begin{itemize}
+    \item identificar outliers (valores atípicos).
+    \item Ver si una variable aumenta cuando la otra lo hace (correlación positiva).
+    \item Detectar clusters (grupos).
+\end{itemize}
+
+La sintaxis básica suele verse así:
+\begin{verbatim}
+    plt.scatter(x,y, s=area, c=colores, alpha=0.5)
+\end{verbatim}
+Donde \(x,y\) son las variables que pasamos, \(s\) el tamaño del punto, \(c\) los colores y \(alpha\) la transparencia.
+
+\begin{pycode}{Grafico de dispersión}
+import matplotlib.pyplot as plt
+
+# Datos
+altura = [150, 160, 170, 180, 190, 200]
+peso = [50, 60, 65, 80, 85, 95]
+
+# Gráfico
+plt.scatter(altura, peso, s=5, c="red", marker="o")
+    
+plt.title("Relación entre altura y peso")
+plt.xlabel("Altura (cm)")
+plt.ylabel("Peso (kg)")
+\end{pycode}
+
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_simple_scatter.pgf} 
+    \caption{Gráfico de dispersión}
+    \label{fig:grafico_simple_scatter}
+\end{figure}
+
+El código anterior se veria como la figura \ref{fig:grafico_simple_scatter}, aunque sin grilla, la grilla fue colocada para beneficio del lector.
+
+
+
+
+\subsection{Gráficos de barras (\texttt{.bar()})}
+
+Son aquellos utilizados para comparar categoías o valores discretos, puede ser en orientación vertical o horizontal.
+
+Para realizar un gráfico de barras se utiliza la siguiente sintaxis:
+\begin{verbatim}
+    plt.bar(x,y)
+\end{verbatim}
+
+Para realizar un gráfico de barras horizontal se utiliza:
+\begin{verbatim}
+    plt.barh(x,y)
+\end{verbatim}
+
+\begin{pycode}{Gráfico de barras}
+import matplotlib.pyplot as plt
+
+# Datos
+categorias = ["A", "B", "C", "D"]
+valores = [4, 7, 1, 8]
+
+# Gráfico de barras
+plt.bar(categorias, valores, width=0.8) # Width es el espesor de la barra
+
+plt.title("Gráfico de barras")
+plt.xlabel("Categorías")
+plt.ylabel("Valores")
+plt.show()
+\end{pycode}
+
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_simple_bar.pgf} 
+    \caption{Gráfico de barra}
+    \label{fig:grafico_simple_bar}
+\end{figure}
+
+El código es como la figura \ref{fig:grafico_simple_bar}
+
+
+\subsection{Histograma (\texttt{.hist()})}
+
+El histograma sirve para ver la distribución de una sola variable numérica continua. Sirve para identificar donde se concentran los datos, su dispersión y para ver si hay sesgo.
+
+Un histograma divide el rango de tus datos en intervalos iguales llamados bins. Si tiene datos del 0 al 100 y usas \texttt{bins=10}, cada barra representará un rango de 10 unidades (0-10, 10-20, etc.). 
+
+Su sintaxis consiste en:
+\begin{verbatim}
+    plt.hist(datos, bins=30, ...)
+\end{verbatim}
+
+\begin{nota}
+    Algunas funciones interesantes son \texttt{density} y \texttt{cumulative}. La primera moestra la probabilidad en lugar del conteo, la segunda crea un histograma acumulado, donde cada barra nueva suma la anterior.
+\end{nota}
+
+\begin{pycode}{Histograma}
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Generar datos aleatorios
+datos = np.random.randn(1000) # Distribución normal
+
+# Histograma
+plt.hist(datos, bins=30, edgecolor="black") # edgecolor pinta los bordes de la barra
+
+plt.title("Histograma de distribución normal")
+plt.xlabel("Valor")
+plt.ylabel("Frecuencia")
+plt.show()    
+\end{pycode}
+
+Este código nos deja la figura \ref{fig:grafico_simple_histograma}
+
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_simple_histograma.pgf} 
+    \caption{Histograma}
+    \label{fig:grafico_simple_histograma}
+\end{figure}
+
+\subsection{Boxplot o Caja y bigote (\texttt{.boxplot()})}
+
+Este diagrama sintetiza la distribución de un conjunto de datos, donde la caja representa el \textit{rango intercuartílico}, la línea central la mediana y los bigotes los valores sin outliers.
+
+Un quartil es el 25\% de los datos obtenidos. Donde el primer quartil es el centro de la mitad, es decir marca el 25\% de los valores más bajos, el tercer quartil es el centro de la mitad más alta, es decir marca el último 25\% de los valores.
+
+\begin{itemize}
+    \item Primer quartil \(Q_1\) = 25\%
+    \item Segundo quartil \(Q_2\) = 50\%
+    \item Tercer quartil \(Q_3\) = 75\%
+    \item Cuarto quartil \(Q_4\) = 100\%
+\end{itemize}
+
+El rango intercuartílico es aquel que nos da el ancho de la caja. Este concentra el 50\% de los datos de la muestra. El rango inter quartilico es la resta entre el tercer quartil y el primer quartil.
+\[
+IQR = Q_3-Q_1
+\]
+
+Esto sirve para medir la estabilidad, si el rango intercuartílico es bajo, significa que la mayoria de los datos son iguales (estrecha la caja). Si el rango intercuartílico es alto, significa que hay más diferencia entre datos (la caja se hace ancha).
+
+Los bigotes (la linea fuera de la caja) son aquellos que se extienden para mostrar el resto de los datos.
+
+Por ultimo los valores atípicos son los puntos que se encuentran fuera de los bigotes. Estos son valores raros o extremos que no representan al resto del grupo.
+
+\begin{ejemplo}
+    La caja es donde vive el 50\% de la gente común.
+    La linea dentro de la caja es la zona más poblada.
+    Lo que se encuentra fuera de la caja hasta los bigotes del grafico son las zonas rurales.
+    Los valores atípicos son las zonas inospitas, encontrar a alguien viviendo allí seria anormal.
+\end{ejemplo}
+
+\begin{pycode}{Gráfico de caja y bigote}
+import matplotlib.pyplot as plt
+
+# Datos
+grupo1 = [7, 8, 5, 6, 9, 10, 6, 7, 8, 6]
+grupo2 = [5, 6, 7, 8, 7, 9, 5, 6, 6, 7]
+
+# Grafico de caja y bigote
+plt.boxplot([grupo1, grupo2], tick_labels=["Grupo 1", "Grupo 2"])
+
+plt.title("Comparación de dos grupos")
+plt.ylabel("Valores")    
+\end{pycode}
+
+El código le va a dar la figura \ref{fig:grafico_simple_boxplot}
+
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_simple_boxplot.pgf} 
+    \caption{Gráfico de caja y bigote}
+    \label{fig:grafico_simple_boxplot}
+\end{figure}

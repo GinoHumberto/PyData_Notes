@@ -1,0 +1,372 @@
+\section{Visualización de Datos con Matplotlib}
+
+\textit{Matplotlib} es la librería fundamental para la visualización de datos en \textit{Python}. Su módulo más utilizado, \texttt{pyplot}, permite generar gráficos de dos dimensiones \textit{(2D)} de alta calidad, abarcando desde diagramas simples hasta composiciones estadísticas complejas.
+
+La visualización es el paso final y crucial del análisis de datos por tres razones principales:
+\begin{enumerate}
+\item \textit{Detección de patrones:} Permite observar tendencias y valores atípicos que a veces se pierden en una tabla de mil filas.
+\item \textit{Comunicación efectiva:} Facilita la transmisión de información técnica a audiencias no especializadas.
+\item \textit{Soporte analítico:} Complementa el procesamiento realizado con \textit{Pandas} y \textit{NumPy}, dando una "cara" a los resultados numéricos.
+\end{enumerate}
+
+\subsection{Instalación}
+
+Para comenzar a utilizar la librería en su entorno local, debe instalarla mediante el gestor de paquetes de \textit{Python}:
+
+\begin{verbatim}
+pip install matplotlib
+\end{verbatim}
+
+Una vez instalada, la convención estándar en la comunidad de ciencia de datos es importarla bajo el alias \texttt{plt}.
+
+
+
+\subsection{Gráfico simple (\textit{.plot()})}
+
+El método \texttt{.plot()} es la forma más directa de crear visualizaciones. Dibuja líneas o puntos conectando coordenadas en un plano cartesiano bidimensional \(x,y\).
+
+La estructura fundamental para generar la gráfica es:
+\begin{verbatim}
+plt.plot(eje_x, eje_y)
+\end{verbatim}
+
+Donde:
+\begin{itemize}
+\item \textit{Eje X:} Representa la variable independiente (comúnmente el tiempo o categorías).
+\item \textit{Eje Y:} Representa la variable dependiente (los valores que queremos medir).
+\end{itemize}
+
+\begin{pycode}{Gráfico simple con .plot()}
+import matplotlib.pyplot as plt
+
+# Definimos los puntos (Coordenadas)
+x = [1, 2, 3, 4, 5]
+y = [2, 4, 6, 8, 10]
+
+# Cargamos los datos al lienzo
+plt.plot(x, y)
+
+# Renderizamos el gráfico
+plt.show()
+\end{pycode}
+
+El codigo va a mostrar una gráfica similar figura \ref{fig:grafico_simple_1}, aunque sin todas las leyendas, ya que estas se colocaron para que sea más facil de interpretar por el lector.
+
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_simple.pgf} 
+    \caption{Gráfico Simple}
+    \label{fig:grafico_simple_1}
+\end{figure}
+
+
+
+% ----------------------------- %
+%       GUARDAR GRAFICOS        %
+% ----------------------------- %
+
+\section{Guardar gráficos (\texttt{.savefig()})}
+
+\textit{Matplotlib} permite guardar sus creaciones en diversos formatos. La función principal para esto es 
+\begin{verbatim}
+    .savefig('ruta y nombre del archivo.formato de extensión')
+\end{verbatim}
+
+\subsection{Formatos de extensión}
+
+\subsubsection{Formatos Vectoriales (Alta Fidelidad)}
+
+Los formatos vectoriales no utilizan una rejilla de píxeles, sino ecuaciones matemáticas para definir líneas y puntos. Esto permite que el gráfico sea infinitamente escalable sin perder resolución.
+
+\paragraph{Formato \texttt{.pgf} (Especial para \LaTeX)}
+
+Este formato es de uso exclusivo para \LaTeX, es una forma profesional de integrar gráficos. Permite que \LaTeX se encargue de renderizar los textos del gráfico utilizando la misma fuente que el resto del documento. 
+
+Utiliza \texttt{pfgplots} y \texttt{Tikz} para realizar los graficos. De forma que también son livianos.
+
+\paragraph{Formato \texttt{.pdf}}
+
+Portable Document format (pdf) es el de mayor uso para documentos académicos y profesionales. Este conserva la naturaleza vectorial. Se puede insertar en cualquier documento y el gráfico sera de gran calidad.
+
+\paragraph{Formato \texttt{.svg}}
+
+Scalable Vector Graphis (svg) es el estándar para la web. Es un archivo basado en XML que puede ser editado con herramientas como \textit{Inkscape} o \textit{Adobe Illustrator} si necesita retocar el diseño estético del gráfico manualmente.
+
+
+\subsubsection{Formatos de mapa de bits (Ráster)}
+
+A diferencia de los vectores, estos formatos dividen la imagen en una cuadrícula de puntos llamados píxeles. Cada píxel tiene un color asignado; por lo tanto, al ampliar la imagen, los puntos se hacen visibles y la calidad se degrada (el efecto de "pixelado").
+
+\paragraph{Formato \texttt{.png}}
+
+Portable network graphics es utilizado para gráficos digitales con fondos transparentes. Tiene una buena compresión sin perdida de calidad visual inmediata.
+
+Es muy común y facil de compartir ya que existen visualizadores .png. Es utilizado para presentaciones o archivos rapidos.
+
+\paragraph{Formatos \texttt{.jpg}}
+
+Es utilizado en fotografías o imágenes donde el tamaño del archivo debe ser pequeño. Tiene una compresión con perdida, lo que significa que  Para reducir el peso, el algoritmo descarta información, lo que genera "ruido" o manchas borrosas alrededor de los textos y las líneas finas del gráfico.
+
+Es útil para cuando son muchos gráficos y poco espacio.
+
+\paragraph{Estandar para presentaciones}
+
+Para presentaciones en pantalla o documentos que no requieren escalabilidad infinita, se utilizan los formatos de mapa de bits (\texttt{.png} o \texttt{.jpg}). Para garantizar que las líneas de tendencia y los textos de los ejes no se vean "serruchados", se debe configurar la densidad de píxeles mediante el parámetro \texttt{dpi}.
+
+El DPI informa a la computadora cuántos puntos de color debe dibujar en cada pulgada de espacio.
+\begin{itemize}
+\item \textit{DPI alto (300+):} Alta definición, ideal para imprimir o proyectar en pantallas grandes. El archivo resultante es más pesado.
+\item \textit{DPI bajo (72-100):} Calidad estándar para web o visualización rápida en monitores antiguos. El archivo es liviano.
+\end{itemize}
+
+En los formatos vectoriales (\texttt{.pdf}, \texttt{.svg}, \texttt{.pgf}) el parámetro \texttt{dpi} es irrelevante, ya que la computadora redibuja el gráfico matemáticamente cada vez que usted hace zoom.
+
+Para generar un gráfico de alta calidad en formato ráster, utilice la siguiente sintaxis:
+\begin{verbatim}
+    .savefig('ruta y nombre de gráfico.Formato', dpi=300)
+\end{verbatim}
+
+\subsubsection{Formatos Técnicos}
+
+Es el ancestro de los formatos vectoriales modernos.
+
+\paragraph{.eps}
+
+Encapsulated postscript (eps) es utilizado en puiblicaciones de revistas científicas o imprentas tradicionales. Es un formato vectorial antiguo que en algunos lugares aún es utilizado.
+
+
+
+
+
+\subsubsection{Ruta y nombre del archivo}
+
+Yo no le voy a decir que nombre o ruta debe darle a su archivo, pero lo voy a informar de como darle la ruta a su archivo. La forma en que indicamos a \textit{Python} dónde guardar un gráfico determina la portabilidad de nuestro código. Existen tres enfoques principales para gestionar estas direcciones.
+
+\paragraph{Ruta Relativa (Mismo nivel)}
+
+Es la forma más simple. \textit{Matplotlib} busca la carpeta donde se está ejecutando el script (\texttt{.py}) y guarda el archivo allí mismo.
+\begin{verbatim}
+    plt.savefig('Nombre.Formato')
+\end{verbatim}
+
+
+\paragraph{Navegación por directorios (\textit{Dot notation})}
+
+Si su estructura de carpetas es organizada, puede usar puntos para navegar, donde:
+\begin{itemize}
+\item \texttt{./}: Carpeta actual.
+\item \texttt{../}: Sube un nivel jerárquico (sale de la carpeta actual hacia la "madre").
+\end{itemize}
+
+\begin{verbatim}
+    plt.savefig('../Carpeta/Nombre.Formato')
+\end{verbatim}
+
+
+\paragraph{Uso de la librería \texttt{os} (Independencia del Sistema)}
+
+La librería \texttt{os} (operating system) es un módulo nativo de \textit{Python} que permite interactuar con el sistema de archivos del sistema operativo.
+
+Se utiliza \texttt{os} porque segun el sistema operativo se utilizan diferentes barras (windows utiliza ``\\'' y linux, mac utilizan \/). 
+
+Para guardar un archivo con \texttt{os} se necesita:
+\begin{itemize}
+    \item Obtener la ruta base.
+    \item Unir rutas.
+    \item Verificar carpeta.
+\end{itemize}
+
+Para describir este, voy a demostrar un ejemplo en código:
+
+\begin{pycode}{Gestión profesional de rutas con os}
+import matplotlib.pyplot as plt
+import os
+
+# ----- Grafico ----- #
+
+# Grafico que desee
+
+# ----- Guardado ----- #
+
+# Definimos una ruta que empiece en la carpeta personal del usuario (~). Es útil para guardar en 'Documentos' sin importar el nombre del usuario
+ruta_usuario = '~/Documentos/Carpeta1/.../grafico.Formato'
+
+# Expandimos el símbolo '~' a la ruta real del sistema. En Windows será C:\Users\Nombre... y en Linux /home/nombre...
+ruta_final = os.path.expanduser(ruta_usuario)
+# La funcion expanduser nos lleva a la ruta real sin que se tenga que realizar manualmente
+
+# (Opcional) Crear la carpeta si no existe para evitar errores
+carpeta = os.path.dirname(ruta_final)
+if not os.path.exists(carpeta):
+    os.makedirs(carpeta)
+\end{pycode}
+
+
+
+\section{Títulos y etiquetas básicas}
+
+Un gráfico sin contexto puede ser confuso. \textit{Matplotlib} le permite agregar títulos, etiquetas y leyendas. 
+
+\paragraph{Título}
+
+Para colocar un título en el grafico \textit{Matplot} tiene su función:
+\begin{verbatim}
+    plt.title('Título deseado')
+\end{verbatim}
+
+\paragraph{Etiquetas en los ejes}
+
+Para colocar una etiqueta o referencia en el eje \(x\) se utiliza:
+\begin{verbatim}
+    plt.xlabel('Etiqueta')
+\end{verbatim}
+
+Para colocar una etiqueta en el eje \(y\) se utiliza:
+\begin{verbatim}
+    plt.ylabel
+\end{verbatim}
+
+\paragraph{}
+
+\subsection{Diseño y etiquetas}
+
+\subsubsection{Diseño de la función}
+
+Si usted quiere realizar un grafico más facil de interpretar puede utilizar funciones como:
+\begin{verbatim}
+    plt.plot(x,y, marker='marcador', color='color', linestyle='linea')
+\end{verbatim}
+
+Los marcadores son los símbolos que resaltan los puntos de datos individuales en un gráfico de líneas o de dispersión. Los diferentes marcadores son: 
+\begin{itemize}
+    \item \texttt{``.''}: realiza un punto.
+    \item \texttt{``o''}: un circulo.
+    \item \texttt{``x''}: una cruz.
+    \item \texttt{``s''}: un cuadrado (``s'' por square).
+    \item \texttt{``p''}: pentagono.
+    \item \texttt{``*''}: estrella.
+    \item \texttt{``h''}: hexagono.
+    \item \texttt{``d''}: un diamante.
+\end{itemize}
+
+Hay varias formas de definir colores, desde nombre sencillos hasta códigos hexadecimales. Los mas básicos son:
+\begin{itemize}
+    \item \texttt{``b''}: azul.
+    \item \texttt{``g''}: verde.
+    \item \texttt{``r''}: rojo.
+    \item \texttt{``k''}: negro.
+    \item \texttt{``w''}: blanco.
+\end{itemize}
+
+Otros tipos de colores son los mas modernos (tableau):
+\begin{itemize}
+    \item \texttt{``tab:blue''}.
+    \item \texttt{``tab:orange''}.
+    \item \texttt{``tab:color''}.
+\end{itemize}
+
+Por ultimo el estilo de línea. Este permite diferenciar distintas series, especialmente en impresiones blanco y negro. Algunas posibilidades son:
+\begin{itemize}
+    \item \texttt{``-''}: una linea continua.
+    \item \texttt{``--''}: linea punteada larga.
+    \item \texttt{``:''}: linea de puntos pequeños.
+    \item \texttt{``-.''}: combinación de raya y punto.
+    \item \texttt{``None''}: sin linea, solo marcadores
+\end{itemize}
+
+\begin{pycode}{Diseño de función}
+import matplotlib.pyplot as plt
+
+x = [1, 2, 3, 4]
+y = [10, 20, 25, 30]
+
+# Ejemplo 1: Rojo, circulos, linea punteada
+plt.plot(x, y, 'ro--')
+
+# Ejemplo 2: Personalizacion detallada 
+plt.plot(x, y,
+    color='#2ecc71',      # Verde esmeralda
+    linestyle='-.',       # Raya-punto
+    marker='*',           # Estrella
+    markersize=12,        # Tamaño del marcador
+    linewidth=2,          # Grosor de la linea
+    markerfacecolor='y')  # Color interno del marcador
+
+\end{pycode}
+
+
+
+\subsubsection{Diseño de la grilla}
+
+La grilla es el fondo del gráfico, elegir una mala grilla puede generar molestia al obsevador.
+
+Si tiene una grilla activa y quiere que esta no aparezca utilice:
+\begin{verbatim}
+    plt.grid(False)
+\end{verbatim}
+
+Si quiere volver la grilla punteada o discontinua utilice las abreviaciones de lineas utilizadas anteriormente, pero de la siguiente forma:
+\begin{verbatim}
+    plt.grid(True, linestyle:':')
+\end{verbatim}
+
+Para que un gráfico se vea profesional, la grilla no debe competir visualmente con los datos. Lo ideal es usar líneas finas, punteadas y de un color gris tenue:
+\begin{pycode}{ejemplo de una buena grilla}
+import matplotlib.pyplot as plt
+
+x = [1, 2, 3, 4]
+y = [10, 20, 25, 30]
+
+plt.plot(x, y, color='k', label='linea')
+
+plt.grid(True, 
+         linestyle='--',   # Tipo de línea (discontinua)
+         linewidth=0.5,    # Grosor fino
+         color='gray',     # Color suave
+         alpha=0.5)        # Transparencia para que no distraiga
+
+# Personalizar etiquetas
+plt.title("Gráfico con grilla y color modificado")
+plt.xlabel(r"Eje $X$")
+plt.ylabel(r"Eje $Y$")
+plt.legend()
+\end{pycode}
+
+El grafico generado en el código anterior contiene etiqueta, color y estilo de grilla, este grafico se puede ver en la figura \ref{fig:grafico_simple_grilla}. 
+
+\begin{nota}
+    \texttt{label} dentro de \texttt{plt.plot} es la referencia de la línea.
+\end{nota}
+
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_simple_grilla.pgf} 
+    \caption{Gráfico con grilla, color y etiquetas.}
+    \label{fig:grafico_simple_grilla}
+\end{figure}
+
+
+
+\subsection{Anotaciones}
+
+Si usted desea resaltar un punto especifico y flechas que guíne la atención puede utilizar:
+\begin{verbatim}
+    plt.annotate('referencia', xy=(x,y), xytext=(x,y),...,
+    arrowprops=dict(facecolor='color', shrink=0.05))
+\end{verbatim}
+
+En donde la referencia es lo que queramos anotar. \texttt{xy} es el punto que queremos marcar, \texttt{xytext} es donde queremos que se escriba la diferencia y \texttt{arrowprops} es la flecha.
+
+
+\subsection{Límites de los ejes (\textit{plt.xlim} y \textit{plt.ylim})}
+
+Por defecto, \textit{Matplotlib} ajusta los ejes para que todos los datos entren en el cuadro. Sin embargo, a veces esto deja mucho espacio o hacer que las variaciones pequeñas parezcan planas. Con \texttt{.xlim()} y \texttt{.ylim()} tomamos el control del zoom.
+
+\begin{itemize}
+\item \texttt{plt.xlim(min, max)}: Recorta el eje horizontal.
+\item \texttt{plt.ylim(min, max)}: Recorta el eje vertical.
+\end{itemize}
+
+\paragraph{¿Cuándo usarlo?}
+Si estás analizando una tasa y los valores van del 98\% al 102\%, un gráfico que empiece en 0 hará que la línea parezca totalmente recta. Si ajustas \texttt{plt.ylim(95, 105)}, la variación será evidente y fácil de analizar.
+
