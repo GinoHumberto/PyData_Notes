@@ -1,0 +1,55 @@
+\section{Interactividad}
+
+\textit{Matplotlib} no solo genera imágenes estáticas; posee la capacidad de interactuar con el sistema operativo para actualizar una ventana de visualización en tiempo real. Esto es fundamental para monitorear datos que cambian constantemente o para realizar demostraciones dinámicas.
+
+\subsection{El Modo Interactivo (\textit{plt.ion})}
+
+Por defecto, \textit{Matplotlib} trabaja en modo bloqueante: el script se detiene hasta que usted cierra la ventana del gráfico. Al activar el Interactive On (\texttt{plt.ion()}), permitimos que el código siga ejecutándose mientras la ventana permanece abierta y se actualiza.
+
+\subsubsection{Componentes del bucle interactivo}
+
+Para que una animación funcione correctamente sin colgar el sistema, necesitamos coordinar tres funciones del objeto \texttt{canvas} (el lienzo interactivo):
+
+\begin{itemize}
+\item \texttt{fig.canvas.draw\_idle()}: Solicita al programa que redibuje la figura en el próximo momento que el procesador esté libre. Es más eficiente que un redibujado forzado.
+\item \texttt{fig.canvas.flush\_events()}: Limpia la cola de eventos del sistema operativo (clics, movimientos de mouse), permitiendo que la ventana responda y no aparezca como ``No responde''.
+\item \texttt{line.set\_ydata(y)}: En lugar de borrar y volver a crear el gráfico (lo cual es lento), solo actualizamos los datos de la línea existente. Esto garantiza una animación fluida.
+\end{itemize}
+
+Veamos un ejemplo sencillo
+\begin{pycode}{Simulación de Oscilación}
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+
+# Activamos la interactividad
+plt.ion()
+
+# Creamos la figura
+fig, ax = plt.subplots(layout="constrained")
+
+# Datos
+x = np.linspace(0, 10, 100)
+line, = ax.plot(x, np.sin(x))
+
+# Realizamos la simulación
+for i in range(50):
+    nuevo_y = np.sin(x + i/10.0) # Desplazamos la fase
+    line.set_ydata(nuevo_y)      # Actualizamos solo los datos
+    fig.canvas.draw_idle()
+    fig.canvas.flush_events()
+    time.sleep(0.05)             # Velocidad de animación
+
+# Desactivamos la interactividad
+plt.ioff()
+plt.show()
+\end{pycode}
+
+\begin{nota}
+Para que esto funcione fuera de un Notebook, su instalación de \textit{Python} debe tener acceso a un kit de herramientas de interfaz gráfica. Los más comunes son \textit{TkAgg} (viene con Python) o \textit{QtAgg} (más moderno y rápido, requiere instalar \texttt{PyQt5}).
+\end{nota}
+
+
+\subsection{TIpos de interactividad}
+
+\subsubsection{}

@@ -1,5 +1,312 @@
 \section{Gráficos Tridimensionales}
 
-\textit{Matplotlib} permite realizar gráficos de tres dimensiones mediante \texttt{subplot\_kw{'projection' : '3d'}} (kw significa keywords). 
+\textit{Matplotlib} permite realizar gráficos de tres dimensiones (\(x,y,z\)) mediante \texttt{subplot\_kw{'projection' : '3d'}} (kw significa keywords). 
 
-\subsection{}
+\subsection{Configuración del Entorno 3D}
+
+La activación se realiza mediante el argumento \texttt{subplot\_kw} al inicializar la figura, donde se debe colocar:
+\begin{itemize}
+\item \texttt{projection='3d'}: Informa a \textit{Pyplot} que el objeto \texttt{ax} debe tener propiedades de profundidad, rotación y un tercer eje de coordenadas.
+\item \texttt{set\_zlabel()}: Método exclusivo de esta proyección para etiquetar la profundidad.
+\end{itemize}
+
+\begin{pycode}{Creación de una hélice 3D}
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Datos
+t = np.linspace(0, 4 * np.pi, 500)
+z = t
+x = np.sin(t)
+y = np.cos(t)
+
+# Inicialización del lienzo 3D
+fig, ax = plt.subplots(subplot_kw={"projection": "3d"}, figsize=(5, 5)) 
+
+# Trazado de línea en el espacio
+ax.plot3D(x, y, z, color='purple', linewidth=2)
+
+ax.set_title("Trayectoria Helicoidal en 3D")
+ax.set_xlabel("Eje X")
+ax.set_ylabel("Eje Y")
+ax.set_zlabel("Eje Z (Tiempo/Profundidad)")
+
+plt.show()
+\end{pycode}
+
+El gráfico de hélice se ve en la figura \ref{fig:grafico_Tridimensional}
+
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_Tridimensional.pgf} 
+    \caption{Gráfico 3D}
+    \label{fig:grafico_Tridimensional}
+\end{figure}
+
+\subsubsection{Dispersión 3D (\textit{ax.scatter})}
+
+El gráfico de dispersión en tres dimensiones se utiliza para identificar agrupamientos (\textit{clusters}), tendencias espaciales o correlaciones entre tres variables independientes. Al añadir un mapa de colores (\textit{colormap}), podemos visualizar una cuarta dimensión de datos de forma intuitiva.
+
+\emph{¿Cuándo se usa?}
+\begin{itemize}
+\item Detección de valores atípicos (\textit{Outliers}): Es más fácil ver un punto "lejos de la nube" en un espacio 3D que en tablas planas.
+\item Análisis de carteras: Por ejemplo, comparar Riesgo, Retorno y Plazo de diferentes activos financieros.
+\item Ingeniería y logística: Para mapear coordenadas geográficas (X,Y) junto con una variable de altitud o costo (Z).
+\end{itemize}
+
+\begin{pycode}{Dispersión 3D Matemática}
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Generación de datos
+rng = np.random.default_rng(42)
+n = 600
+x, y, z = rng.normal(0, 1, (3, n))
+distancia = np.sqrt(x**2 + y**2 + z**2) # Cuarta dimensión (Color)
+
+# Entorno 3D
+fig, ax = plt.subplots(subplot_kw={"projection": "3d"}, figsize=(5, 5))
+
+# Creación del gráfico
+sc = ax.scatter(x, y, z, c=distancia, cmap="magma", s=10, alpha=0.8)
+
+# Configuración de barra de colores
+cb = fig.colorbar(sc, ax=ax, shrink=0.5, pad=0.1) 
+cb.set_label("Intensidad / Distancia")
+
+ax.set_title("Nube de Puntos Multivariable")
+plt.show()
+\end{pycode}
+
+\emph{Análisis del código}
+\begin{itemize}
+\item \texttt{c=c}: Define el color de cada punto. En este caso, el color depende de la distancia radial (qué tan lejos está el punto del centro 0,0,0).
+\item \texttt{cmap='mapa'}: Es el "mapa de colores". Algunos mapas son: \textit{Viridis}, \textit{plasma}, \textit{magma}, \textit{inferno} y \textit{cividis}.
+\item \texttt{s=15}: (\textit{Size}) Define el tamaño de los puntos. En 3D, puntos muy grandes pueden solaparse y "tapar" la profundidad.
+\item \texttt{alpha=0.9}: Controla la transparencia. Un poco de transparencia ayuda a ver puntos que están "detrás" de otros en la nube.
+\item \texttt{fig.colorbar()}: Añade la leyenda lateral que explica qué significa cada color. Sin esto, el color sería solo decorativo y no informativo.
+\item \texttt{ax.set\_box\_aspect((1, 1, 1))}: Fuerza a que los tres ejes tengan la misma escala visual (un cubo perfecto). Esto evita que el gráfico se vea "estirado" si un eje tiene valores más grandes que otros.
+\end{itemize}
+
+\begin{nota}
+    Al usar \texttt{shrink} (escala) y \texttt{pad} (espaciado) en \texttt{colorbar}, ajustamos su tamaño y su distancia respecto al gráfico principal. \texttt{pad=0.1} Define la fracción de espacio entre el gráfico y la barra de colores..
+\end{nota}
+
+El gráfico de dispersión 3D se puede observar en la figura \ref{fig:grafico_3D_scatter}
+
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_3D_scatter.pgf} 
+    \caption{Gráfico 3D scatter}
+    \label{fig:grafico_3D_scatter}
+\end{figure}
+
+\subsubsection{Superficie en malla regular (\textit{ax.plot\_surface})}
+
+La función \texttt{plot\_surface} funciona como una red de pesca perfectamente cuadrada, cuando la lanza sobre una superficie (como una duna de arena o una escultura), la red se adapta a las curvas de ese objeto, donde cada nudo de la red tiene una coordenada (\(x,y\)) en el suelo y una altura (\(z\)).
+
+Lo que hace \texttt{plot\_surface} es rellenar los huecos entre los hilos de la red con color, creando una piel continua.
+
+
+\emph{¿Cuándo se usa?}
+\begin{itemize}
+    \item \textit{Topografía y Mapas de Elevación}: Si tiene las mediciones de altura de un terreno tomadas por un satélite en una cuadrícula fija, \texttt{plot\_surface} le permite reconstruir la montaña o el valle digitalmente.
+    \item \textit{Paisajes de Optimización en Machine Learning}: En Inteligencia Artificial, queremos que el error de un modelo sea el mínimo posible. Este error suele visualizarse como una superficie con valles y colinas.
+    \item \textit{Modelado de Ondas y Propagación}: Visualiza cómo se expande el sonido en una habitación o las ondas electromagnéticas de una antena wifi.Lo que nos permite identificar puntos muertos de señal en un diseño arquitectónico.
+\end{itemize}
+
+\begin{pycode}{superficie de malla regular}
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Datos
+x = np.linspace(-3, 3, 200)
+y = np.linspace(-3, 3, 200)
+X, Y = np.meshgrid(x, y)
+Z = np.sin(np.sqrt(X**2 + Y**2))
+
+# Entrono 3D
+fig, ax = plt.subplots(subplot_kw={"projection": "3d"}, figsize=(5, 5), layout="constrained")
+
+# Malla:
+surf = ax.plot_surface(X, Y, Z, cmap="viridis", rstride=1, cstride=1, linewidth=0, antialiased=True)
+
+ax.set_title("Superficie 3D: z = sin(sqrt(x^2 + y^2))")
+ax.set_xlabel("X")
+ax.set_ylabel("Y")
+ax.set_zlabel("Z")
+
+# Ángulo de visualización
+cb = fig.colorbar(surf, ax=ax, shrink=0.7, pad=0.05)
+cb.set_label("Altura (Z)")
+ax.view_init(elev=25, azim=45)
+ax.set_box_aspect((1, 1, 0.5))   
+\end{pycode}
+
+\emph{Análisis del código: Parámetros clave}
+\begin{itemize}
+\item \texttt{np.meshgrid(x, y)}: Convierte dos vectores simples en matrices de coordenadas que definen todos los puntos de cruce de la rejilla. Sin esto, no hay ``malla''.
+\item \texttt{rstride} y \texttt{cstride}: (\textit{Row/Column stride}). Controlan la densidad de la malla. Un valor de \texttt{1} usa todos los datos; valores más altos saltan puntos para que el gráfico sea más liviano de procesar.
+\item \texttt{antialiased=True}: Suaviza los bordes de los polígonos para que la superficie no se vea "pixelada" o con bordes de sierra.
+\item \texttt{ax.view\_init(elev=25, azim=45)}: Define el ángulo de cámara. \texttt{elev} es la altura del observador y \texttt{azim} es la rotación lateral. Es vital para encontrar el ángulo que mejor muestra la curvatura.
+\end{itemize}
+
+El gráfico de malla regular se puede observar en la figura \ref{fig:grafico_3D_malla_regular}
+
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_3D_malla_regular.pgf} 
+    \caption{Gráfico de Malla regular}
+    \label{fig:grafico_3D_malla_regular}
+\end{figure}
+
+
+
+\subsubsection{Superficie con datos dispersos (\texttt{ax.plot\_trisurf})}
+
+A diferencia del gráfico anterior donde tenía una rejilla perfecta, aquí tiene una nube de puntos aleatorios. Imagine que tira puñados de arena sobre una mesa; los puntos no estáran alineados.    
+
+Para crear una superficie con puntos \textit{desordenados}, \textit{Matplotlib} usa la Triangulación de Delaunay. Basicamente el algoritmo conecta los puntos más cercanos entre sí formando triángulos, de manera que no haya ángulos demasiado agudos. Esto crea una piel o malla que cubre todos los puntos, permitiendo ver una superficie continua donde antes solo había puntos sueltos.
+
+\emph{¿Cuándo usarlo?}
+
+Cuando no se tiene control sobre las coordenadas X e Y (ej: ubicación geográfica de clientes) o cuando tiene una nube de puntos y quiere unirlos para ver la tendencia general de la superficie.
+
+\begin{pycode}{Superficie con datos dispersos}
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.tri import Triangulation # Necesitamos importar esta libreria de matplot
+
+# Datos
+rng = np.random.default_rng(0)
+n = 200
+x = 6 * rng.random(n) - 3
+y = 6 * rng.random(n) - 3
+z = np.sin(np.sqrt(x**2 + y**2))
+
+# Creamos la triangulación, donde matplot conecta los puntos para formar triángulos
+tri = Triangulation(x, y)
+
+# Creamos la figura 
+fig, ax = plt.subplots(subplot_kw={"projection": "3d"}, figsize=(5, 5), layout="constrained")
+
+# Utilizamos Trisurf
+surf = ax.plot_trisurf(tri, z, cmap="plasma", linewidth=0.2, antialiased=True)
+
+ax.set_title("Superficie 3D triangulada (datos dispersos)")
+ax.set_xlabel("X")
+ax.set_ylabel("Y")
+ax.set_zlabel("Z")
+
+# Barra de color a la derecha
+fig.colorbar(surf, ax=ax, shrink=0.7, pad=0.05).set_label("Altura (Z)")
+ax.set_box_aspect((1, 1, 0.6))
+\end{pycode}
+
+\emph{Análisis del código}
+\begin{itemize}
+    \item \texttt{Triangulation(x, y)}: Es el motor del gráfico. Toma los puntos sueltos y calcula matemáticamente cómo conectarlos con triángulos sin que se crucen (normalmente usando la triangulación de Delaunay).
+    \item \texttt{cmap='plasma'}: Otro mapa de colores perceptualmente uniforme. A diferencia de \textit{viridis}, \textit{plasma} usa tonos púrpuras y amarillos intensos, muy útiles para resaltar relieves.
+    \item \texttt{linewidth=0.2}: Define el grosor de las líneas que unen los triángulos. En este tipo de gráficos, un poco de línea ayuda a entender la estructura de la superficie.
+    \item \texttt{ax.set\_box\_aspect((1, 1, 0.6))}: Nota que aquí el valor de Z (0.6) es menor. Esto aplasta un poco el gráfico verticalmente, lo cual es útil si la variación en Z es muy abrupta y quiere que el gráfico sea de una dimensión normal.
+\end{itemize}
+
+\emph{Diferencias entre \texttt{plot\_surface} y \texttt{plot\_trisurf}}:
+
+\begin{itemize}
+\item \texttt{plot\_surface} requiere que los datos estén ordenados en una matriz (grilla). Es una estrictura rectangular uniforme. Es rápido.
+\item \texttt{plot\_trisurf} acepta listas de datos desordenados y él mismo construye la conexión entre ellos. Es una estructura Triangular irregular. Es Lento.
+\end{itemize}
+
+Para ver el gráfico de \texttt{plot\_trisurf} ver la figura \ref{fig:grafico_3D_Triangulado}
+\begin{figure}[ht]
+    \centering
+    \input{Graficos/grafico_3D_Triangulado.pgf} 
+    \caption{Gráfico de superficie con datos dispersos}
+    \label{fig:grafico_3D_Triangulado}
+\end{figure}
+
+
+\subsubsection{¿Cómo realizar gráficos Tridimensionales para \LaTeX ?}
+
+Para integrar gráficos 3D en documentos profesionales sin perder calidad ni incrementar excesivamente el tamaño del archivo PDF, es necesario garantizar que el motor de renderizado no convierta la superficie en una imagen de mapa de bits (.png) interna. Para evitar esto utilizamos comandos como \texttt{.set\_rasterized(False)}. Vease en el código.
+
+\begin{pycode}{Gráfico de malla regular para LaTeX}
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Para guardar en otra carpeta:
+import os
+
+#####################
+#       Código      #
+#####################
+
+# ---- Para latex ---- #
+
+plt.rcParams.update({
+    "pgf.texsystem": "xelatex",    
+    "font.family": "serif",
+    "text.usetex": True,       
+    "pgf.rcfonts": False,          
+    "pgf.preamble": "\n".join([    
+         r"\usepackage{fontspec}",
+         r"\setmainfont{CMU Serif}",
+    ])
+})
+
+# ---- Grilla ---- #
+
+plt.rcParams.update({
+    'axes.grid':True,
+    'grid.linestyle':'--',
+    'grid.linewidth':0.5,
+    'grid.color':'gray',
+    'grid.alpha':0.5
+})
+    
+#####################
+#       Datos       #
+#####################
+
+# Datos
+x = np.linspace(-3, 3, 100) # Siempre reduzca la densidad, más de 100 es demasiado para una demostración.
+y = np.linspace(-3, 3, 100)
+X, Y = np.meshgrid(x, y)
+Z = np.sin(np.sqrt(X**2 + Y**2))
+
+# Entorno 3D
+fig, ax = plt.subplots(subplot_kw={"projection": "3d"}, figsize=(5, 5), layout="constrained")
+
+# 1: antialiased=False
+# Al exportar de forma vectorial utilizar antialased=True puede crear lineas blancas entre poligonos. Desactivarlo hace que los vectores encajen de forma perfecta
+surf = ax.plot_surface(X, Y, Z, cmap="viridis", rstride=1, cstride=1, 
+                       linewidth=0, antialiased=False, rasterized=False)
+
+# 2: Forzar que la superficie no sea rasterizada
+surf.set_rasterized(False)
+
+# Titulos con LaTeX
+ax.set_title(r"Superficie 3D: $z = \sin(\sqrt{x^2 + y^2})$") 
+ax.set_xlabel("X")
+ax.set_ylabel("Y")
+ax.set_zlabel("Z")
+
+# Barra de color
+cb = fig.colorbar(surf, ax=ax, shrink=0.7, pad=0.05)
+cb.set_label("Altura (Z)")
+
+# 3: Forzamos a que los elementos de la barra de color sean vectoriales. Buscamos que no se simplifique a una imagen .png
+cb.solids.set_rasterized(False)
+
+# Vista del gráfico
+ax.view_init(elev=25, azim=45)
+ax.set_box_aspect((1, 1, 0.5))
+
+# 4. Guardar en la carpeta deseada
+# Expandimos la tilde antes de guardar
+ruta_tilde = "~/Documentos/.../carpeta_deseada/Nombre_del_documento.pfg"
+ruta_real = os.path.expanduser(ruta_tilde)
+
+plt.savefig(ruta_real, bbox_inches='tight')
+\end{pycode}
